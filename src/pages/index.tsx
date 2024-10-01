@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 
 import { BsHandbag, BsSuitHeart } from "react-icons/bs";
