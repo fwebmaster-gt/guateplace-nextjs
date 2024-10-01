@@ -1,115 +1,79 @@
-import Image from "next/image";
-import localFont from "next/font/local";
+/* eslint-disable @next/next/no-img-element */
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import { BsHandbag, BsSuitHeart } from "react-icons/bs";
+import { AiOutlineUser } from "react-icons/ai";
+import { productService } from "./database/config";
 
-export default function Home() {
+export async function getServerSideProps() {
+  const products = await productService.find();
+
+  console.log(products.data);
+
+  return {
+    props: {
+      products: products.data || [],
+    },
+  };
+}
+
+export default function Home({ products }: { products: any[] }) {
   return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/pages/index.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div>
+      <nav
+        className={`fixed top-0 left-0 w-full bg-white flex items-center justify-between border-b border-gray-300 py-2 px-3`}
+      >
+        <div className="flex items-center gap-1">
+          <img
+            width={60}
+            height={60}
+            src="https://firebasestorage.googleapis.com/v0/b/lanayamor-b666f.appspot.com/o/images%2FLogo_Boutique_de_Ropa_Moderno_Rosa__1_-removebg-preview.png0?alt=media&token=4914ee50-e885-4ee2-8c38-29c748a10ade"
+            alt="guateplace-logo"
+          />
+          <h2 className="font-bold text-lg">
+            <span className="text-primary">Guate</span>place
+          </h2>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className="flex items-center gap-5">
+          <BsSuitHeart className="text-3xl text-gray-700" />
+          <BsHandbag className="text-3xl text-gray-700" />
+          <AiOutlineUser className="text-3xl text-gray-700" />
+        </div>
+      </nav>
+
+      <div className="opacity-0 h-20">hidden padding</div>
+
+      <div className="px-4">
+        <p className="font-bold text-xs mb-2 mt-5">Buscar</p>
+        <input
+          className="border p-2 rounded-lg w-full outline-none focus:ring-2 ring-primary"
+          type="search"
+          placeholder="Buscar producto"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-1 px-4 mt-5">
+        {products.map((p) => (
+          <div
+            className="relative border shadow-sm border-gray-300 p-2 rounded-lg"
+            key={p.id}
+          >
+            <p className="absolute top-5 right-5 bg-primary text-white font-bold py-1 px-2 rounded-lg">
+              Q{p.precio}
+            </p>
+            <img
+              className="w-full h-48 object-cover"
+              src={p.imagenes[0]}
+              alt={p.nombre}
+            />
+            <p className="font-bold">{p.nombre}</p>
+
+            <p>
+              {p.cantidad} disponible{p.cantidad === "1" ? "" : "s"}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
