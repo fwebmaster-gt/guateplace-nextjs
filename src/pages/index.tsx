@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 
-import { BsHandbag, BsSuitHeart } from "react-icons/bs";
+import { BsFillSuitHeartFill, BsHandbag, BsSuitHeart } from "react-icons/bs";
 import { AiOutlineUser } from "react-icons/ai";
 import { productService } from "./database/config";
+import { useState } from "react";
 
 export async function getServerSideProps() {
   const products = await productService.find();
@@ -18,10 +19,12 @@ export async function getServerSideProps() {
 }
 
 export default function Home({ products }: { products: any[] }) {
+  const [blue, setBlue] = useState<boolean>(false);
+
   return (
     <div>
       <nav
-        className={`fixed top-0 left-0 w-full bg-white flex items-center justify-between border-b border-gray-300 py-2 px-3`}
+        className={`z-40 fixed top-0 left-0 w-full bg-white flex items-center justify-between border-b border-gray-300 py-2 px-3`}
       >
         <div className="flex items-center gap-1">
           <img
@@ -53,28 +56,42 @@ export default function Home({ products }: { products: any[] }) {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-1 px-4 mt-5">
+      <div className="grid grid-cols-2 gap-4 px-4 mt-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {products.map((p) => (
           <div
-            className="relative border shadow-sm border-gray-300 p-2 rounded-lg"
+            className="relative border shadow-sm border-gray-300 rounded-lg overflow-hidden"
             key={p.id}
           >
             <p className="absolute top-5 right-5 bg-primary text-white font-bold py-1 px-2 rounded-lg">
               Q{p.precio}
             </p>
+
+            {blue ? (
+              <BsFillSuitHeartFill
+                onClick={() => setBlue(!blue)}
+                className={`z-10 absolute top-5 left-5 text-3xl text-red-500`}
+              />
+            ) : (
+              <BsSuitHeart
+                onClick={() => setBlue(!blue)}
+                className={`z-10 absolute top-5 left-5 text-3xl text-gray-50`}
+              />
+            )}
+
             <img
-              className="w-full h-48 object-cover"
+              className="w-full h-44 object-cover"
               src={p.imagenes[0]}
               alt={p.nombre}
             />
-            <p className="font-bold">{p.nombre}</p>
 
-            <p>
-              {p.cantidad} disponible{p.cantidad === "1" ? "" : "s"}
-            </p>
+            <div className="p-3 bg-gray-50 h-[90px] overflow-hidden">
+              <p className="font-bold">{p.nombre}</p>
+            </div>
           </div>
         ))}
       </div>
+
+      <div className="opacity-0 h-20">hidden padding</div>
     </div>
   );
 }
