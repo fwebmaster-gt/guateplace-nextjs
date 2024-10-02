@@ -12,3 +12,4 @@ const firebaseConfig = {
 export const app = initFirebaseTools(firebaseConfig);
 
 export const productService = new FirestoreService(app, "productos");
+export const categoryService = new FirestoreService(app, "categorias");

@@ -3,26 +3,35 @@
 
 import { BsFillSuitHeartFill, BsHandbag, BsSuitHeart } from "react-icons/bs";
 import { AiOutlineUser } from "react-icons/ai";
-import { productService } from "./database/config";
+import { categoryService, productService } from "./database/config";
 import { useState } from "react";
 
 export async function getServerSideProps() {
   const products = await productService.find();
+  const categories = await categoryService.find();
 
   console.log(products.data);
 
   return {
     props: {
       products: products.data || [],
+      categories: categories.data || [],
     },
   };
 }
 
-export default function Home({ products }: { products: any[] }) {
+export default function Home({
+  products,
+  categories,
+}: {
+  products: any[];
+  categories: any[];
+}) {
   const [blue, setBlue] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
 
   return (
-    <div>
+    <div className="container mx-auto">
       <nav
         className={`z-40 fixed top-0 left-0 w-full bg-white flex items-center justify-between border-b border-gray-300 py-2 px-3`}
       >
@@ -48,21 +57,60 @@ export default function Home({ products }: { products: any[] }) {
       <div className="opacity-0 h-20">hidden padding</div>
 
       <div className="px-4">
-        <p className="font-bold text-xs mb-2 mt-5">Buscar</p>
-        <input
-          className="border p-2 rounded-lg w-full outline-none focus:ring-2 ring-primary"
-          type="search"
-          placeholder="Buscar producto"
-        />
+        <div className="w-full mt-8 mb-5">
+          <div className="relative">
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+              placeholder="Busca productos"
+            />
+            <button
+              className="absolute top-1 right-1 flex items-center rounded bg-primary py-1 px-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow focus:bg-blue-700 focus:shadow-none active:bg-blue-700 hover:bg-blue-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+              type="button"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-4 h-4 mr-2"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Buscar
+            </button>
+          </div>
+        </div>
+        <div className="flex gap-4 overflow-x-scroll py-5">
+          {categories.map((category) => (
+            <div key={category.id}>
+              <div className="h-[100px] w-[100px] min-h-[100px] min-w-[100px] max-h-[100px] max-w-[100px] border rounded-full flex items-center justify-center">
+                <img className="w-[75%]" src={category.logo} alt="" />
+              </div>
+
+              <p className="text-xs text-center font-bold text-gray-700 max-w-[80px] mx-auto mt-2">
+                {category.nombre}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
 
+      {filterProducts(products, search).length === 0 && (
+        <p className="text-gray-500 mt-5 text-center">Sin Resultados</p>
+      )}
+
       <div className="grid grid-cols-2 gap-4 px-4 mt-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {products.map((p) => (
+        {filterProducts(products, search).map((p) => (
           <div
             className="relative border shadow-sm border-gray-300 rounded-lg overflow-hidden"
             key={p.id}
           >
-            <p className="absolute top-5 right-5 bg-primary text-white font-bold py-1 px-2 rounded-lg">
+            <p className="absolute top-5 right-5 bg-primary text-white py-1 px-2 rounded-lg">
               Q{p.precio}
             </p>
 
@@ -84,8 +132,10 @@ export default function Home({ products }: { products: any[] }) {
               alt={p.nombre}
             />
 
-            <div className="p-3 bg-gray-50 h-[90px] overflow-hidden">
-              <p className="font-bold">{p.nombre}</p>
+            <div className="p-3 bg-white h-[90px] overflow-hidden">
+              <p className="capitalize text-center text-sm lg:text-base font-bold text-gray-800">
+                {p.nombre}
+              </p>
             </div>
           </div>
         ))}
@@ -93,5 +143,15 @@ export default function Home({ products }: { products: any[] }) {
 
       <div className="opacity-0 h-20">hidden padding</div>
     </div>
+  );
+}
+
+function filterProducts(productList: any[], param: string) {
+  if (!param) return productList;
+  return productList.filter(
+    (p) =>
+      p.nombre?.toLowerCase().includes(param.toLowerCase()) ||
+      p.detalles?.toLowerCase().includes(param.toLowerCase()) ||
+      p.tags?.toLowerCase().includes(param.toLowerCase())
   );
 }
