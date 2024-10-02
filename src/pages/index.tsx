@@ -5,12 +5,12 @@ import { BsFillSuitHeartFill, BsHandbag, BsSuitHeart } from "react-icons/bs";
 import { AiOutlineUser } from "react-icons/ai";
 import { categoryService, productService } from "./database/config";
 import { useState } from "react";
+import { MdStar } from "react-icons/md";
+import { calcularDescuento } from "./constants/prices";
 
 export async function getServerSideProps() {
   const products = await productService.find();
   const categories = await categoryService.find();
-
-  console.log(products.data);
 
   return {
     props: {
@@ -64,6 +64,7 @@ export default function Home({
               onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
               placeholder="Busca productos"
+              type="search"
             />
             <button
               className="absolute top-1 right-1 flex items-center rounded bg-primary py-1 px-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow focus:bg-blue-700 focus:shadow-none active:bg-blue-700 hover:bg-blue-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
@@ -110,8 +111,9 @@ export default function Home({
             className="relative border shadow-sm border-gray-300 rounded-lg overflow-hidden"
             key={p.id}
           >
-            <p className="absolute top-5 right-5 bg-primary text-white py-1 px-2 rounded-lg">
-              Q{p.precio}
+            <p className="absolute z-30 flex items-center text-sm font-bold top-5 right-5 bg-primary text-white py-1 px-2 rounded-lg">
+              <MdStar className="text-yellow-400 text-xl" />
+              {p.rating}
             </p>
 
             {blue ? (
@@ -120,22 +122,66 @@ export default function Home({
                 className={`z-10 absolute top-5 left-5 text-3xl text-red-500`}
               />
             ) : (
-              <BsSuitHeart
+              <BsFillSuitHeartFill
                 onClick={() => setBlue(!blue)}
-                className={`z-10 absolute top-5 left-5 text-3xl text-gray-50`}
+                className={`z-10 absolute top-5 left-5 text-3xl text-blue-500/50`}
               />
             )}
 
-            <img
-              className="w-full h-44 object-cover"
-              src={p.imagenes[0]}
-              alt={p.nombre}
-            />
+            <div className="relative">
+              <img
+                className="w-full h-44 object-cover"
+                src={p.imagenes[0]}
+                alt={p.nombre}
+              />
+              {p.label ? (
+                <p
+                  style={{
+                    backgroundColor: p.label_color || "",
+                  }}
+                  className={`${
+                    p.label_color ? "" : "bg-red-600"
+                  } absolute bottom-4 left-4 p-2 text-white text-xs rounded-lg font-bold`}
+                >
+                  {p.label}
+                </p>
+              ) : p.precio_especial ? (
+                <p className="bg-red-600 absolute bottom-4 left-4 p-2 text-white text-xs rounded-lg font-bold">
+                  - {calcularDescuento(+p.precio, +p.precio_especial)} %
+                </p>
+              ) : (
+                <></>
+              )}
+            </div>
 
-            <div className="p-3 bg-white h-[90px] overflow-hidden">
-              <p className="capitalize text-center text-sm lg:text-base font-bold text-gray-800">
-                {p.nombre}
-              </p>
+            <div className="p-3 bg-white h-[150px] overflow-hidden flex flex-col justify-between">
+              <div>
+                <div className="flex gap-2">
+                  {p.precio_especial ? (
+                    <>
+                      <p className="font-bold text-xl capitalize lg:text-base text-gray-800">
+                        Q{p.precio_especial}
+                      </p>
+
+                      <p className="line-through font-boldcapitalize text-sm lg:text-base font-bold text-gray-500">
+                        Q{p.precio}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="font-bold text-xl capitalize lg:text-base text-gray-800">
+                      Q{p.precio}
+                    </p>
+                  )}
+                </div>
+
+                <p className="capitalize text-xs lg:text-base text-gray-900">
+                  {p.nombre}
+                </p>
+              </div>
+
+              <button className="bg-primary text-white p-2 px-4 rounded-lg text-xs">
+                Agregar al carrito
+              </button>
             </div>
           </div>
         ))}
