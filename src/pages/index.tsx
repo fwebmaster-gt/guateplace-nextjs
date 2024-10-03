@@ -1,12 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 
-import { BsFillSuitHeartFill, BsHandbag, BsSuitHeart } from "react-icons/bs";
-import { AiOutlineUser } from "react-icons/ai";
-import { categoryService, productService } from "./database/config";
+import {
+  BsCartX,
+  BsFillSuitHeartFill,
+  BsHandbag,
+  BsSuitHeart,
+} from "react-icons/bs";
+import { AiOutlineShoppingCart, AiOutlineUser } from "react-icons/ai";
+import { categoryService, productService } from "../database/config";
 import { useState } from "react";
-import { MdStar } from "react-icons/md";
-import { calcularDescuento } from "./constants/prices";
+import { MdDelete, MdStar } from "react-icons/md";
+import { calcularDescuento } from "../constants/prices";
+import { useCartStore } from "../hooks/useCart";
+import { useRouter } from "next/router";
 
 export async function getServerSideProps() {
   const products = await productService.find();
@@ -27,15 +34,28 @@ export default function Home({
   products: any[];
   categories: any[];
 }) {
+  const router = useRouter();
+
   const [blue, setBlue] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
+
+  const {
+    addProduct,
+    productsInCart,
+    decrementItem,
+    incrementItem,
+    removeProduct,
+  } = useCartStore();
 
   return (
     <div className="container mx-auto">
       <nav
         className={`z-40 fixed top-0 left-0 w-full bg-white flex items-center justify-between border-b border-gray-300 py-2 px-3`}
       >
-        <div className="flex items-center gap-1">
+        <div
+          onClick={() => router.push("/")}
+          className="flex items-center gap-1 cursor-pointer"
+        >
           <img
             width={60}
             height={60}
@@ -49,7 +69,18 @@ export default function Home({
 
         <div className="flex items-center gap-5">
           <BsSuitHeart className="text-3xl text-gray-700" />
-          <BsHandbag className="text-3xl text-gray-700" />
+          <div
+            onClick={() => router.push("/carrito")}
+            className="relative cursor-pointer"
+          >
+            <BsHandbag className="text-3xl text-gray-700" />
+
+            {productsInCart.length > 0 && (
+              <div className="absolute text-xs top-0 right-0 bg-primary text-white font-bold w-4 h-4 rounded-full flex items-start justify-center">
+                {productsInCart.length}
+              </div>
+            )}
+          </div>
           <AiOutlineUser className="text-3xl text-gray-700" />
         </div>
       </nav>
@@ -111,10 +142,12 @@ export default function Home({
             className="relative border shadow-sm border-gray-300 rounded-lg overflow-hidden"
             key={p.id}
           >
-            <p className="absolute z-30 flex items-center text-sm font-bold top-5 right-5 bg-primary text-white py-1 px-2 rounded-lg">
-              <MdStar className="text-yellow-400 text-xl" />
-              {p.rating}
-            </p>
+            {p.rating && (
+              <p className="absolute z-30 flex items-center text-sm font-bold top-5 right-5 bg-primary text-white py-1 px-2 rounded-lg">
+                <MdStar className="text-yellow-400 text-xl" />
+                {p.rating}
+              </p>
+            )}
 
             {blue ? (
               <BsFillSuitHeartFill
@@ -179,9 +212,63 @@ export default function Home({
                 </p>
               </div>
 
-              <button className="bg-primary text-white p-2 px-4 rounded-lg text-xs">
-                Agregar al carrito
-              </button>
+              {p.out_stock === true ? (
+                <button className="bg-gray-800 font-bold text-white p-2 px-4 rounded-lg text-xs flex gap-4 items-center justify-center">
+                  Agotado <BsCartX className="text-lg" />
+                </button>
+              ) : (
+                <>
+                  {productsInCart.find(
+                    (productInCart) => productInCart.productId === p.id
+                  ) ? (
+                    <div className="flex items-center justify-between">
+                      {productsInCart.find(
+                        (productInCart) => productInCart.productId === p.id
+                      )?.qty === 1 ? (
+                        <div
+                          onClick={() => removeProduct(p.id)}
+                          className="flex items-center justify-center h-6 w-6 bg-red-500 rounded-full text-white font-bold"
+                        >
+                          <MdDelete />
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => decrementItem(p.id)}
+                          className="flex items-center justify-center h-6 w-6 bg-primary rounded-full text-white font-bold"
+                        >
+                          -
+                        </div>
+                      )}
+                      <input
+                        disabled={true}
+                        className="w-[40px] py-2 text-center border outline-none rounded-lg"
+                        type="number"
+                        value={
+                          productsInCart.find(
+                            (productInCart) => productInCart.productId === p.id
+                          )?.qty
+                        }
+                      />
+                      <div
+                        onClick={() => incrementItem(p.id)}
+                        className="flex items-center justify-center h-6 w-6 bg-primary rounded-full text-white font-bold"
+                      >
+                        +
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => addProduct({ qty: 1, productId: p.id })}
+                      className="bg-primary text-white p-2 px-4 rounded-lg flex items-center gap-4 justify-center"
+                    >
+                      <p className="text-[8px] font-bold uppercase">
+                        Agregar al carrito
+                      </p>
+                      <AiOutlineShoppingCart className="text-2xl" />
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           </div>
         ))}
