@@ -24,9 +24,9 @@ const Seo = ({ title, description, keywords, image }: Props) => {
 
   return (
     <Head>
-      <meta name="application-name" content="Monty" />
+      <meta name="application-name" content={defaultSeo.company} />
       <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-      <meta name="description" content="Gestiona tu negocio" />
+      <meta name="description" content={defaultSeo.description} />
       <meta name="copyright" content={defaultSeo.company} />
       <meta name="language" content="es" />
       <meta name="robots" content="index,follow" />
@@ -64,7 +64,7 @@ const Seo = ({ title, description, keywords, image }: Props) => {
       <link rel="apple-touch-icon" sizes="152x152" href="/images/logo.png" />
       <link rel="apple-touch-icon" sizes="180x180" href="/images/logo.png" />
       <link rel="apple-touch-icon" sizes="167x167" href="/images/logo.png" />
-      <link rel="manifest" href="/manifest.json" />
+      <link rel="manifest" href="/site.webmanifest" />
       <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no"

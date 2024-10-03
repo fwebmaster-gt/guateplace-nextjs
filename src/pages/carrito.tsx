@@ -262,11 +262,11 @@ const CartPage = ({ products }: { products: any[] }) => {
                       </div>
                       <p className="mt-0.5 text-sm text-gray-500">
                         Los costos de envío son calculados en el{" "}
-                        <span className="text-primary">Checkout</span>
+                        <span className="text-primary">Pedido</span>
                       </p>
                       <div className="mt-6">
                         <p className="flex items-center justify-center rounded-md border border-transparent bg-primary px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-blue-700">
-                          Checkout
+                          Realizar Pedido
                         </p>
                       </div>
                       <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
