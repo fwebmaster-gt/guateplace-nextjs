@@ -1,13 +1,15 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 
-import { BsCartX, BsFillSuitHeartFill } from "react-icons/bs";
+import { BsArrowLeft, BsCartX, BsFillSuitHeartFill } from "react-icons/bs";
 import { AiOutlineShoppingCart } from "react-icons/ai";
-import { categoryService, productService } from "../database/config";
+import { categoryService, productService } from "../../database/config";
 import { useState } from "react";
 import { MdDelete, MdStar } from "react-icons/md";
-import { calcularDescuento } from "../constants/prices";
-import { useCartStore } from "../hooks/useCart";
+import { calcularDescuento } from "../../constants/prices";
+import { useCartStore } from "../../hooks/useCart";
+import { useRouter } from "next/router";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import Seo from "@/components/Seo";
@@ -31,6 +33,10 @@ export default function Home({
   products: any[];
   categories: any[];
 }) {
+  const router = useRouter();
+
+  const categoryId = router.query.id;
+
   const [blue, setBlue] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
 
@@ -42,9 +48,22 @@ export default function Home({
     removeProduct,
   } = useCartStore();
 
+  const categoryDetails = categories.find((c) => c.id === categoryId);
+
+  const categoryProducts = products.filter((p) =>
+    p.categorias.includes(categoryId)
+  );
+
   return (
     <div className="container mx-auto">
-      <Seo />
+      <Seo
+        title={categoryDetails.nombre}
+        description={
+          categoryDetails.descripcion ||
+          `Encuentra productos de ${categoryDetails.nombre}`
+        }
+        image={categoryDetails.imagen}
+      />
       <Navbar />
 
       <div className="px-4">
@@ -54,7 +73,7 @@ export default function Home({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-              placeholder="Busca productos"
+              placeholder={`Busca en ${categoryDetails.nombre}`}
               type="search"
             />
             <button
@@ -77,27 +96,50 @@ export default function Home({
             </button>
           </div>
         </div>
-        <div className="flex gap-4 overflow-x-scroll py-5">
-          {categories.map((category) => (
-            <Link href={`/categorias/${category.id}`} key={category.id}>
-              <div className="h-[100px] w-[100px] min-h-[100px] min-w-[100px] max-h-[100px] max-w-[100px] border rounded-full flex items-center justify-center">
-                <img className="w-[75%]" src={category.logo} alt="" />
+
+        <Link
+          className="text-primary underline flex items-center gap-2"
+          href={"/"}
+        >
+          <BsArrowLeft /> Todo
+        </Link>
+        <div
+          key={categoryId as string}
+          className="flex gap-4 overflow-x-scroll py-5"
+        >
+          {categoryDetails && (
+            <div>
+              <div className="bg-primary h-[100px] w-[100px] min-h-[100px] min-w-[100px] max-h-[100px] max-w-[100px] border rounded-full flex items-center justify-center">
+                <img className="w-[75%]" src={categoryDetails.logo} alt="" />
               </div>
 
               <p className="text-xs text-center font-bold text-gray-700 max-w-[80px] mx-auto mt-2">
-                {category.nombre}
+                {categoryDetails.nombre}
               </p>
-            </Link>
-          ))}
+            </div>
+          )}
+          {categories
+            .filter((c) => c.id !== categoryId)
+            .map((category) => (
+              <Link href={`/categorias/${category.id}`} key={category.id}>
+                <div className="h-[100px] w-[100px] min-h-[100px] min-w-[100px] max-h-[100px] max-w-[100px] border rounded-full flex items-center justify-center">
+                  <img className="w-[75%]" src={category.logo} alt="" />
+                </div>
+
+                <p className="text-xs text-center font-bold text-gray-700 max-w-[80px] mx-auto mt-2">
+                  {category.nombre}
+                </p>
+              </Link>
+            ))}
         </div>
       </div>
 
-      {filterProducts(products, search).length === 0 && (
+      {filterProducts(categoryProducts, search).length === 0 && (
         <p className="text-gray-500 mt-5 text-center">Sin Resultados</p>
       )}
 
       <div className="grid grid-cols-2 gap-4 px-4 mt-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {filterProducts(products, search).map((p) => (
+        {filterProducts(categoryProducts, search).map((p) => (
           <div
             className="relative border shadow-sm border-gray-300 rounded-lg overflow-hidden"
             key={p.id}

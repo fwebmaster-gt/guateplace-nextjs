@@ -239,9 +239,9 @@ const CartPage = ({ products }: { products: any[] }) => {
                                     <button
                                       onClick={() => removeProduct(details.id)}
                                       type="button"
-                                      className="font-medium text-primary hover:text-blue-500"
+                                      className="font-medium text-red-400 hover:text-red-500"
                                     >
-                                      Remove
+                                      Eliminar
                                     </button>
                                   </div>
                                 </div>
