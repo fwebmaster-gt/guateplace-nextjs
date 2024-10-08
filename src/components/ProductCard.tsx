@@ -1,6 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { calcularDescuento } from "@/constants/prices";
+import { useAppStore } from "@/hooks/useAppStore";
+import { useAuthStore } from "@/hooks/useAuth";
 import { useCartStore } from "@/hooks/useCart";
 import Link from "next/link";
 import { AiOutlineShoppingCart } from "react-icons/ai";
@@ -15,6 +17,12 @@ const ProductCard = ({ p }: any) => {
     productsInCart,
     removeProduct,
   } = useCartStore();
+
+  const { user } = useAuthStore();
+  const { setLoginToContinue } = useAppStore();
+
+  const favoritos = user?.favoritos || [];
+
   return (
     <div
       className="relative border shadow-sm border-gray-300 rounded-lg overflow-hidden"
@@ -27,12 +35,18 @@ const ProductCard = ({ p }: any) => {
         </p>
       )}
 
-      {false ? (
+      {favoritos.includes(p.id) ? (
         <BsFillSuitHeartFill
           className={`z-10 absolute top-5 left-5 text-3xl text-red-500`}
         />
       ) : (
         <BsFillSuitHeartFill
+          onClick={() => {
+            if (user) {
+            } else {
+              setLoginToContinue({ block: false, value: true });
+            }
+          }}
           className={`z-10 absolute top-5 left-5 text-3xl text-blue-500/50`}
         />
       )}

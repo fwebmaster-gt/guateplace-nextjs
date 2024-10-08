@@ -1,4 +1,8 @@
-import { FirestoreService, initFirebaseTools } from "firebase-react-tools";
+import {
+  AuthService,
+  FirestoreService,
+  initFirebaseTools,
+} from "firebase-react-tools";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCLcUg_ClR88E5vtRYgSLVI6iCJ0OrVQVM",
@@ -11,5 +15,8 @@ const firebaseConfig = {
 
 export const app = initFirebaseTools(firebaseConfig);
 
+export const auth = new AuthService(app);
+
+export const customerService = new FirestoreService(app, "clientes");
 export const productService = new FirestoreService(app, "productos");
 export const categoryService = new FirestoreService(app, "categorias");
