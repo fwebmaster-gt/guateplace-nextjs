@@ -43,6 +43,7 @@ const CreateProfile = () => {
         favoritos: [],
         nits: [],
         pedidos: [],
+        id: cUser.uid,
       },
       cUser.uid
     );

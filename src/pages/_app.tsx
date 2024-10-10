@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import CreateProfile from "@/components/CreateProfile";
+import LoadingPage from "@/components/LoadingPage";
 import LoginToContinue from "@/components/LoginToContinue";
 import { app, customerService } from "@/database/config";
 import { useAppStore } from "@/hooks/useAppStore";
@@ -9,9 +10,10 @@ import { useAuth } from "firebase-react-tools";
 import type { AppProps } from "next/app";
 import NextNProgress from "nextjs-progressbar";
 import { useEffect, useState } from "react";
+import { Toaster } from "react-hot-toast";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const { user } = useAuth(app);
+  const { user, loading } = useAuth(app);
 
   const { setUser, user: profile } = useAuthStore();
 
@@ -57,11 +59,16 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
-  if (user && !profile && loadingProfile === false) return <CreateProfile />;
+  if (user && !profile && !loadingProfile && !loading) return <CreateProfile />;
 
   return (
     <>
-      {showLoginToContinue.value && <LoginToContinue />}
+      <Toaster />
+      {(loadingProfile || loading) && <LoadingPage />}
+
+      {showLoginToContinue.value && !loading && !loadingProfile && (
+        <LoginToContinue />
+      )}
 
       <NextNProgress />
       <Component {...pageProps} />

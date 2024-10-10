@@ -1,13 +1,15 @@
 import { create } from "zustand";
 
 export interface Direccion {
+  id: string;
   departamento: string;
   municipio: string;
   direccion_exacta: string;
   indicaciones: string;
-  telefonos: string[];
   nombre_receptor: string;
   nombre_direccion: string;
+  tel1: string;
+  tel2: string;
 }
 
 export interface Nit {

@@ -11,7 +11,7 @@ const LoginToContinue = () => {
   const { setLoginToContinue, showLoginToContinue } = useAppStore();
 
   return (
-    <div className="fixed top-0 left-0 w-full bg-white z-50 min-h-screen px-5 flex flex-col items-start justify-center">
+    <div className="fixed top-0 left-0 w-full bg-white z-40 min-h-screen px-5 flex flex-col items-start justify-center">
       <div className="w-full relative">
         <img
           className="mx-auto"
