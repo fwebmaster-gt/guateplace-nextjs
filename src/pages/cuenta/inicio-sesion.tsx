@@ -1,5 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import Navbar from "@/components/Navbar";
+import { auth } from "@/database/config";
+import Link from "next/link";
+import { FcGoogle } from "react-icons/fc";
 
 const LoginAccount = () => {
   return (
@@ -108,16 +111,26 @@ const LoginAccount = () => {
                   >
                     Iniciar
                   </button>
-                </div>
-                <p className="text-sm !mt-8 text-center text-gray-800">
-                  No tienes cuenta?{" "}
-                  <a
-                    href="javascript:void(0);"
-                    className="text-primary font-semibold hover:underline ml-1 whitespace-nowrap"
+
+                  <button
+                    onClick={() => auth.loginGoogle()}
+                    type="button"
+                    className="flex items-center justify-center gap-2 w-full font-bold shadow-xl py-3 px-4 text-sm tracking-wide rounded-lg text-gray-800 mt-2 bg-white border hover:bg-gray-50 focus:outline-none"
                   >
-                    Creala aqui
-                  </a>
-                </p>
+                    Iniciar Con Google <FcGoogle className="text-2xl" />
+                  </button>
+                </div>
+                <div className="text-center">
+                  <Link
+                    href={"/cuenta/crear-cuenta"}
+                    className="text-sm !mt-8 text-gray-800"
+                  >
+                    No tienes cuenta?
+                    <span className="text-primary font-semibold hover:underline ml-1 whitespace-nowrap">
+                      Creala aqui
+                    </span>
+                  </Link>
+                </div>
               </form>
             </div>
           </div>

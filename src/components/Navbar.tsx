@@ -62,7 +62,7 @@ const Navbar = () => {
               if (!user) {
                 setLoginToContinue({ block: false, value: true });
               } else {
-                router.push(`/cuenta/${user.id}`);
+                router.push(`/cuenta/perfil`);
               }
             }}
           >

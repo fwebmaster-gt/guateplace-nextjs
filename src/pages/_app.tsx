@@ -11,11 +11,11 @@ import NextNProgress from "nextjs-progressbar";
 import { useEffect, useState } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const { user, loading } = useAuth(app);
+  const { user } = useAuth(app);
 
   const { setUser, user: profile } = useAuthStore();
 
-  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
   const { showLoginToContinue, setLoginToContinue } = useAppStore();
 
@@ -47,19 +47,15 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const handlePopState = () => {
       console.log("Se presionó el botón de retroceso");
-      // Puedes agregar aquí la lógica que desees ejecutar
-
       setLoginToContinue({ block: false, value: false });
     };
-
     window.addEventListener("popstate", handlePopState);
-
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
   }, []);
 
-  if (user && !profile && !loading && !loadingProfile) return <CreateProfile />;
+  if (user && !profile && loadingProfile === false) return <CreateProfile />;
 
   return (
     <>

@@ -1,5 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import Navbar from "@/components/Navbar";
+import { auth } from "@/database/config";
+import Link from "next/link";
+import { FcGoogle } from "react-icons/fc";
 
 const CreateAccount = () => {
   return (
@@ -14,7 +17,9 @@ const CreateAccount = () => {
                 <div className="mb-8">
                   <div className="relative">
                     <img
-                      className="mx-auto w-full h-full mb-4"
+                      height={200}
+                      width={200}
+                      className="mx-auto mb-4"
                       src="https://cdni.iconscout.com/illustration/premium/thumb/ecommerce-service-illustration-download-in-svg-png-gif-file-formats--e-commerce-online-shopping-buy-pack-illustrations-6057334.png"
                       alt="Dining Experience"
                     />
@@ -109,18 +114,28 @@ const CreateAccount = () => {
                     type="button"
                     className="w-full font-bold shadow-xl py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-primary hover:bg-blue-600 focus:outline-none"
                   >
-                    Crear GuateCuenta
+                    Crear Cuenta
+                  </button>
+
+                  <button
+                    onClick={() => auth.loginGoogle()}
+                    type="button"
+                    className="flex items-center justify-center gap-2 w-full font-bold shadow-xl py-3 px-4 text-sm tracking-wide rounded-lg text-gray-800 mt-2 bg-white border hover:bg-gray-50 focus:outline-none"
+                  >
+                    Iniciar Con Google <FcGoogle className="text-2xl" />
                   </button>
                 </div>
-                <p className="text-sm !mt-8 text-center text-gray-800">
-                  Ya tienes cuenta?{" "}
-                  <a
-                    href="javascript:void(0);"
-                    className="text-primary font-semibold hover:underline ml-1 whitespace-nowrap"
+                <div className="text-center">
+                  <Link
+                    href={"/cuenta/inicio-sesion"}
+                    className="text-sm !mt-8 text-gray-800"
                   >
-                    Inicia aqui
-                  </a>
-                </p>
+                    Ya tienes cuenta?
+                    <span className="text-primary font-semibold hover:underline ml-1 whitespace-nowrap">
+                      Inicia aqui
+                    </span>
+                  </Link>
+                </div>
               </form>
             </div>
           </div>

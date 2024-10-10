@@ -47,6 +47,7 @@ export interface Customer {
   nits: Nit[];
   favoritos: string[];
   pedidos: [];
+  avatar: string;
 }
 
 interface ProfileState {
