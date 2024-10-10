@@ -48,17 +48,6 @@ export default function App({ Component, pageProps }: AppProps) {
     }
   }, [user]);
 
-  useEffect(() => {
-    const handlePopState = () => {
-      console.log("Se presionó el botón de retroceso");
-      setLoginToContinue({ block: false, value: false });
-    };
-    window.addEventListener("popstate", handlePopState);
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, []);
-
   if (user && !profile && !loadingProfile && !loading) return <CreateProfile />;
 
   return (
