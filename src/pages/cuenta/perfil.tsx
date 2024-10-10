@@ -1,11 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
 import LoginToContinue from "@/components/LoginToContinue";
 import Navbar from "@/components/Navbar";
+import { auth } from "@/database/config";
 import { useAuthStore } from "@/hooks/useAuth";
+import { useRouter } from "next/router";
 import { FaMedal, FaTruck } from "react-icons/fa";
 
 const MyAccount = () => {
   const { user } = useAuthStore();
+
+  const router = useRouter();
 
   if (!user) return <LoginToContinue />;
 
@@ -28,7 +32,6 @@ const MyAccount = () => {
             <div className="flex border p-2 rounded-lg gap-1">
               <FaMedal className="text-yellow-600 text-xs" />
               <p className="text-[8px] whitespace-nowrap font-bold text-gray-700">
-                {" "}
                 Cliente Bronce
               </p>
             </div>
@@ -51,7 +54,7 @@ const MyAccount = () => {
             <div className="flex text-xs items-center mt-1 justify-between w-[70%]">
               <FaTruck className="text-primary w-[20px] h-[20px]" />
               <p className="text-xs whitespace-nowrap">
-                <span className="font-bold">10</span> Pedidos
+                <span className="font-bold">10</span> Envio
               </p>
             </div>
           </div>
@@ -66,7 +69,7 @@ const MyAccount = () => {
             height={30}
             src="/truck.png"
             alt="truck"
-          />{" "}
+          />
           Pedidos
         </button>
 
@@ -106,6 +109,11 @@ const MyAccount = () => {
 
       <div className="px-8 mt-12">
         <button
+          onClick={() => {
+            auth.closeSession();
+
+            router.push("/");
+          }}
           type="button"
           className="w-full font-bold shadow-xl py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-red-500 hover:bg-red-600 focus:outline-none"
         >

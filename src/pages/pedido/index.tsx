@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { calcularSubtotal } from "@/constants/prices";
 import { productService } from "@/database/config";
 import { useAppStore } from "@/hooks/useAppStore";
-import { useAuthStore } from "@/hooks/useAuth";
+import { Nit, useAuthStore } from "@/hooks/useAuth";
 import { useCartStore } from "@/hooks/useCart";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -17,6 +18,14 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
   const { user } = useAuthStore();
 
   const [showProducts, setShowProducts] = useState(true);
+  const [showEnvio, setShowEnvio] = useState(true);
+  const [showFactura, setShowFactura] = useState(true);
+
+  const [selectedAddress] = useState(null);
+  const [selectedFactura] = useState<Nit>({
+    nombre: "C/F",
+    numero: "",
+  });
 
   // Función para calcular el total del pedido
   const calcularTotalPedido = (): number => {
@@ -119,7 +128,7 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
 
                       <div className="border bg-white p-5 shadow rounded-xl mb-5">
                         <div
-                          onClick={() => setShowProducts(!showProducts)}
+                          onClick={() => setShowEnvio(!showEnvio)}
                           className="flex gap-2 items-center justify-between cursor-pointer"
                         >
                           <div className="flex gap-2 items-center">
@@ -132,96 +141,69 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
                               Envio
                             </h3>
                           </div>
-                          {!showProducts ? (
+                          {!showEnvio ? (
                             <FaChevronCircleDown className="text-blue-500 text-xl cursor-pointer" />
                           ) : (
                             <FaChevronCircleUp className="text-blue-500 text-xl cursor-pointer" />
                           )}
                         </div>
 
-                        {showProducts && (
-                          <ul
-                            role="list"
-                            className="divide-y divide-gray-200 mt-8"
-                          >
-                            {productsInCart.map((productInCart) => {
-                              const details = products.find(
-                                (p) => p.id === productInCart.productId
-                              );
+                        {showEnvio && (
+                          <div>
+                            {user.direcciones.length === 0 && (
+                              <p className="text-xs text-center text-gray-600 mt-5">
+                                Sin direcciones
+                              </p>
+                            )}
+                            <div>
+                              <button className="text-xs font-bold mt-5 w-full flex items-center justify-center rounded-md border border-transparent bg-primary p-2 text-white shadow-sm hover:bg-blue-700 disabled:bg-gray-800">
+                                Agregar Dirección +
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="border bg-white p-5 shadow rounded-xl mb-5">
+                        <div
+                          onClick={() => setShowFactura(!showFactura)}
+                          className="flex gap-2 items-center justify-between cursor-pointer"
+                        >
+                          <div className="flex gap-2 items-center">
+                            <img
+                              src={"/factura.png"}
+                              alt="bag"
+                              className="w-7 h-7"
+                            />
+                            <h3 className="font-bold text-gray-800 text-lg">
+                              Factura
+                            </h3>
+                          </div>
+                          {!showFactura ? (
+                            <FaChevronCircleDown className="text-blue-500 text-xl cursor-pointer" />
+                          ) : (
+                            <FaChevronCircleUp className="text-blue-500 text-xl cursor-pointer" />
+                          )}
+                        </div>
 
-                              if (!details)
-                                return (
-                                  <p key={productInCart.productId}>
-                                    Producto no válido
-                                  </p>
-                                );
-
-                              return (
-                                <li
-                                  key={productInCart.productId}
-                                  className="flex py-3"
-                                >
-                                  <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                                    <img
-                                      src={details.imagenes[0]}
-                                      alt={details.nombre} // Asumimos que 'nombre' es una propiedad
-                                      className="h-full w-full object-cover object-center"
-                                    />
-                                  </div>
-                                  <div className="ml-4 flex flex-1 flex-col">
-                                    <div>
-                                      <div className="flex justify-between text-base font-medium text-gray-900">
-                                        <div>
-                                          <h3 className="text-sm font-bold">
-                                            <a href="#">{details.nombre}</a>
-                                          </h3>
-
-                                          <div className="flex gap-2 text-gray-500 text-xs">
-                                            <p>
-                                              {
-                                                productsInCart.find(
-                                                  (productInCart) =>
-                                                    productInCart.productId ===
-                                                    details.id
-                                                )?.qty
-                                              }{" "}
-                                              X
-                                            </p>
-                                            {details.precio_especial ? (
-                                              <>
-                                                <p>
-                                                  Q{details.precio_especial}
-                                                </p>
-
-                                                <p className="line-through font-bold capitalize text-xs text-gray-500">
-                                                  Q{details.precio}
-                                                </p>
-                                              </>
-                                            ) : (
-                                              <p>Q{details.precio}</p>
-                                            )}{" "}
-                                            ={" "}
-                                            <p>
-                                              Q
-                                              {calcularSubtotal(
-                                                +details.precio,
-                                                +details.precio_especial,
-                                                productInCart.qty
-                                              )}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <p className="mt-1 text-sm text-gray-500">
-                                        {details.color}{" "}
-                                        {/* Asumimos que 'color' es una propiedad */}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </li>
-                              );
-                            })}
-                          </ul>
+                        {showFactura && (
+                          <div>
+                            <div className="mt-4">
+                              <button
+                                className={`border p-3 rounded-lg ring-primary ${
+                                  selectedFactura.nombre === "C/F"
+                                    ? "ring-2"
+                                    : ""
+                                }`}
+                              >
+                                CF
+                              </button>
+                            </div>
+                            <div>
+                              <button className="text-xs font-bold mt-5 w-full flex items-center justify-center rounded-md border border-transparent bg-primary p-2 text-white shadow-sm hover:bg-blue-700 disabled:bg-gray-800">
+                                Agregar Nit +
+                              </button>
+                            </div>
+                          </div>
                         )}
                       </div>
 
@@ -336,7 +318,7 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 px-4 py-4 sm:px-6">
+                <div className="bg-gray-100 rounded-t-lg border-t border-gray-200 px-4 py-4 sm:px-6">
                   {productsInCart.length > 0 && (
                     <>
                       <div className="flex justify-between text-base font-medium text-gray-900">
@@ -357,9 +339,12 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
                       </div>
 
                       <div className="mt-6">
-                        <p className="flex items-center justify-center rounded-md border border-transparent bg-primary px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-blue-700">
+                        <button
+                          disabled={selectedAddress ? false : true}
+                          className="w-full flex items-center justify-center rounded-md border border-transparent bg-primary px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-blue-700 disabled:bg-gray-500"
+                        >
                           Finalizar Pedido
-                        </p>
+                        </button>
                       </div>
 
                       <p className="mt-4 text-xs text-gray-500 text-center">

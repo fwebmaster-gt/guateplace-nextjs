@@ -39,6 +39,8 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     if (user) {
       FetchProfile();
+
+      setLoginToContinue({ block: false, value: false });
     } else {
       setUser(null);
     }
