@@ -5,12 +5,12 @@ import LoginToContinue from "@/components/LoginToContinue";
 import { app, customerService } from "@/database/config";
 import { useAppStore } from "@/hooks/useAppStore";
 import { Customer, useAuthStore } from "@/hooks/useAuth";
-import "@/styles/globals.css";
 import { useAuth } from "firebase-react-tools";
 import type { AppProps } from "next/app";
 import NextNProgress from "nextjs-progressbar";
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
+import "@/styles/globals.css";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { user, loading } = useAuth(app);
@@ -45,6 +45,7 @@ export default function App({ Component, pageProps }: AppProps) {
       setLoginToContinue({ block: false, value: false });
     } else {
       setUser(null);
+      setLoadingProfile(false);
     }
   }, [user]);
 
