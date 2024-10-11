@@ -1,3 +1,4 @@
+import { customerService } from "@/database/config";
 import { create } from "zustand";
 
 export interface Direccion {
@@ -55,11 +56,35 @@ export interface Customer {
 interface ProfileState {
   user: Customer | null;
   setUser: (user: Customer | null) => void;
+  addOrRemoveWishList: (productId: string) => void;
 }
 
 export const useAuthStore = create<ProfileState>()((set) => ({
   user: null,
   setUser: (user) => {
     return set(() => ({ user }));
+  },
+  addOrRemoveWishList: (productId) => {
+    return set((state) => {
+      if (!state.user) return state;
+      const exist = state.user.favoritos.find((fId) => fId === productId);
+      if (exist) {
+        customerService.deleteInArray(state.user.id, "favoritos", productId);
+        return {
+          user: {
+            ...state.user,
+            favoritos: state.user.favoritos.filter((fId) => fId !== productId),
+          },
+        };
+      } else {
+        customerService.addInArray(state.user.id, "favoritos", productId);
+        return {
+          user: {
+            ...state.user,
+            favoritos: [...state.user.favoritos, productId],
+          },
+        };
+      }
+    });
   },
 }));

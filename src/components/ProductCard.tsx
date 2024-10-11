@@ -18,7 +18,7 @@ const ProductCard = ({ p }: any) => {
     removeProduct,
   } = useCartStore();
 
-  const { user } = useAuthStore();
+  const { user, addOrRemoveWishList } = useAuthStore();
   const { setLoginToContinue } = useAppStore();
 
   const favoritos = user?.favoritos || [];
@@ -38,11 +38,19 @@ const ProductCard = ({ p }: any) => {
       {favoritos.includes(p.id) ? (
         <BsFillSuitHeartFill
           className={`z-10 absolute top-5 left-5 text-3xl text-red-500`}
+          onClick={() => {
+            if (user) {
+              addOrRemoveWishList(p.id);
+            } else {
+              setLoginToContinue({ block: false, value: true });
+            }
+          }}
         />
       ) : (
         <BsFillSuitHeartFill
           onClick={() => {
             if (user) {
+              addOrRemoveWishList(p.id);
             } else {
               setLoginToContinue({ block: false, value: true });
             }

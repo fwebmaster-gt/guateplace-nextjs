@@ -1,10 +1,28 @@
 /* eslint-disable @next/next/no-img-element */
 import Navbar from "@/components/Navbar";
 import { auth } from "@/database/config";
+import { useAuthStore } from "@/hooks/useAuth";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 
 const CreateAccount = () => {
+  const router = useRouter();
+  const { user } = useAuthStore();
+
+  const backTo = router.query.backto;
+
+  useEffect(() => {
+    if (user) {
+      if (backTo) {
+        router.push(backTo as string);
+      } else {
+        router.push("/");
+      }
+    }
+  }, [user]);
+
   return (
     <>
       <Navbar />
@@ -118,7 +136,9 @@ const CreateAccount = () => {
                   </button>
 
                   <button
-                    onClick={() => auth.loginGoogle()}
+                    onClick={async () => {
+                      await auth.loginGoogle();
+                    }}
                     type="button"
                     className="flex items-center justify-center gap-2 w-full font-bold shadow-xl py-3 px-4 text-sm tracking-wide rounded-lg text-gray-800 mt-2 bg-white border hover:bg-gray-50 focus:outline-none"
                   >

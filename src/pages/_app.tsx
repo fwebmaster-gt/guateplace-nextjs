@@ -39,15 +39,19 @@ export default function App({ Component, pageProps }: AppProps) {
   }
 
   useEffect(() => {
+    // validar si no hay usuario o esta cargando para apagar todo
+
+    if (!user && !loading) {
+      setUser(null);
+      setLoadingProfile(false);
+    }
+
     if (user) {
       FetchProfile();
 
       setLoginToContinue({ block: false, value: false });
-    } else {
-      setUser(null);
-      setLoadingProfile(false);
     }
-  }, [user]);
+  }, [user, loading]);
 
   if (user && !profile && !loadingProfile && !loading) return <CreateProfile />;
 

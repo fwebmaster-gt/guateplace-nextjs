@@ -1,10 +1,30 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 import Navbar from "@/components/Navbar";
 import { auth } from "@/database/config";
+import { useAuthStore } from "@/hooks/useAuth";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 
 const LoginAccount = () => {
+  const { user } = useAuthStore();
+
+  const router = useRouter();
+
+  const backTo = router.query.backto;
+
+  useEffect(() => {
+    if (user) {
+      if (backTo) {
+        router.push(backTo as string);
+      } else {
+        router.push("/");
+      }
+    }
+  }, [user]);
+
   return (
     <>
       <Navbar />
@@ -113,7 +133,13 @@ const LoginAccount = () => {
                   </button>
 
                   <button
-                    onClick={() => auth.loginGoogle()}
+                    onClick={async () => {
+                      const res = await auth.loginGoogle();
+
+                      if (backTo && res.user) {
+                        router.push(backTo as string);
+                      }
+                    }}
                     type="button"
                     className="flex items-center justify-center gap-2 w-full font-bold shadow-xl py-3 px-4 text-sm tracking-wide rounded-lg text-gray-800 mt-2 bg-white border hover:bg-gray-50 focus:outline-none"
                   >

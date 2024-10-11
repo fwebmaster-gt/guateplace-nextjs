@@ -24,7 +24,10 @@ const Navbar = () => {
         className={`z-40 fixed top-0 left-0 w-full bg-white flex items-center justify-between border-b border-gray-300 py-2 px-3`}
       >
         <div
-          onClick={() => router.push("/")}
+          onClick={() => {
+            router.push("/");
+            setLoginToContinue({ block: false, value: false });
+          }}
           className="flex items-center gap-1 cursor-pointer"
         >
           <img width={60} height={60} src={LOGO} alt="guateplace-logo" />
@@ -38,6 +41,8 @@ const Navbar = () => {
             onClick={() => {
               if (!user) {
                 setLoginToContinue({ block: false, value: true });
+              } else {
+                setLoginToContinue({ block: false, value: false });
               }
             }}
           >
@@ -45,7 +50,10 @@ const Navbar = () => {
           </button>
 
           <div
-            onClick={() => router.push("/carrito")}
+            onClick={() => {
+              router.push("/carrito");
+              setLoginToContinue({ block: false, value: false });
+            }}
             className="relative cursor-pointer"
           >
             <BsHandbag className="text-3xl text-gray-700" />
@@ -62,6 +70,7 @@ const Navbar = () => {
               if (!user) {
                 setLoginToContinue({ block: false, value: true });
               } else {
+                setLoginToContinue({ block: false, value: false });
                 router.push(`/cuenta/perfil`);
               }
             }}

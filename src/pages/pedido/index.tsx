@@ -98,7 +98,7 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
                       <div className="ml-3 flex h-7 items-center">
                         <button
                           onClick={() => {
-                            router.back();
+                            router.push("/carrito");
                           }}
                           type="button"
                           className="relative -m-2 p-2 text-gray-400 hover:text-gray-500"
