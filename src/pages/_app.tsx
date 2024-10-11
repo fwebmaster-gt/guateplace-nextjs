@@ -22,7 +22,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const { showLoginToContinue, setLoginToContinue } = useAppStore();
 
   async function FetchProfile() {
-    if (!user) return;
+    if (!user) return setLoadingProfile(false);
 
     try {
       setLoadingProfile(true);
@@ -53,7 +53,8 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Toaster />
-      {(loadingProfile || loading) && <LoadingPage />}
+
+      {(loadingProfile === true || loading === true) && <LoadingPage />}
 
       {showLoginToContinue.value && !loading && !loadingProfile && (
         <LoginToContinue />

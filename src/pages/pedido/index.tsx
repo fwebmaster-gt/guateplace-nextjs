@@ -274,7 +274,7 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
                               <div className="flex items-center gap-5">
                                 <FaCheckCircle
                                   className={
-                                    selectedAddress
+                                    selectedFactura
                                       ? "text-green-600"
                                       : "text-gray-500"
                                   }
