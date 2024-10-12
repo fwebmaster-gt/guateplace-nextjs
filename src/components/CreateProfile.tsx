@@ -3,7 +3,6 @@
 import { auth, customerService } from "@/database/config";
 import { useAuthStore } from "@/hooks/useAuth";
 import { useState } from "react";
-import toast from "react-hot-toast";
 import { BiEdit } from "react-icons/bi";
 
 export const avatars = [
@@ -49,8 +48,6 @@ const CreateProfile = () => {
     );
 
     setUser(res.data as never);
-
-    toast.success("Perfil creado");
   };
 
   if (creating) return <p>Loading page...</p>;

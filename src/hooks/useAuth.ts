@@ -8,7 +8,6 @@ export interface Direccion {
   direccion_exacta: string;
   indicaciones: string;
   nombre_receptor: string;
-  nombre_direccion: string;
   tel1: string;
   tel2: string;
 }
@@ -18,7 +17,7 @@ export interface Nit {
   nombre: string;
 }
 
-interface Producto {
+export interface Producto {
   id: string;
   nombre: string;
   precio: string;
@@ -34,11 +33,6 @@ interface Producto {
 
   label: string;
   label_color: string;
-}
-
-export interface Pedido {
-  fecha: string;
-  productos: Producto[];
 }
 
 export interface Customer {

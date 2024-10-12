@@ -3,13 +3,18 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import CreateAddressModal from "@/components/CreateAddressModal";
+import CreateNit from "@/components/CreateNit";
+import LoadingPage from "@/components/LoadingPage";
+import Navbar from "@/components/Navbar";
+import OrderSeccess from "@/components/OrderSeccess";
 import { calcularSubtotal } from "@/constants/prices";
-import { productService } from "@/database/config";
+import { pedidosService, productService } from "@/database/config";
 import { useAppStore } from "@/hooks/useAppStore";
 import { Direccion, Nit, useAuthStore } from "@/hooks/useAuth";
 import { useCartStore } from "@/hooks/useCart";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { BiEdit } from "react-icons/bi";
 import {
   FaCheckCircle,
@@ -17,9 +22,19 @@ import {
   FaChevronCircleUp,
 } from "react-icons/fa";
 
+const MAX_COD_PRICE = 1000;
+const TARIFA_ENVIO = 35;
+
+const defaultNit = {
+  nombre: "C/F",
+  numero: "C/F",
+};
+
 const CheckoutPage = ({ products }: { products: any[] }) => {
   const router = useRouter();
-  const { productsInCart } = useCartStore();
+  const [orderSucess, setOrderSeccess] = useState<null | string>(null);
+  const [loading, setLoading] = useState(false);
+  const { productsInCart, clearCart } = useCartStore();
   const { setLoginToContinue } = useAppStore();
   const { user } = useAuthStore();
 
@@ -29,6 +44,7 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
   const [showPagos, setShowPagos] = useState(true);
 
   const [addingAddress, setAddingAddress] = useState(false);
+  const [addingNit, setAddingNit] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "deposito">(
     "deposito"
   );
@@ -37,10 +53,7 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
     null
   );
 
-  const [selectedFactura] = useState<Nit>({
-    nombre: "C/F",
-    numero: "",
-  });
+  const [selectedNit, setSelectedNit] = useState<Nit>(defaultNit);
 
   // Función para calcular el total del pedido
   const calcularTotalPedido = (): number => {
@@ -69,9 +82,68 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
 
   if (!user) return <></>;
 
+  const sendPedido = async () => {
+    const confirmOp = confirm("Estas seguro de finalizar tu pedido?");
+
+    if (confirmOp === false) return;
+
+    setLoading(true);
+
+    const populatedProduct = productsInCart.map((pCart) => {
+      const info = products.find((p) => p.id === pCart.productId);
+
+      return {
+        producto_id: pCart.productId,
+        cantidad: pCart.qty,
+        precio_final_unitario: info.precio_especial
+          ? info.precio_especial
+          : info.precio,
+        subtotal: calcularSubtotal(
+          info.precio,
+          info.precio_especial,
+          pCart.qty
+        ),
+      };
+    });
+
+    const pedidoFinal = {
+      fecha: Date.now(),
+      cliente_id: user.id,
+      productos_pedidos: populatedProduct,
+      info_envio: selectedAddress,
+      info_factura: selectedNit,
+      sub_total: calcularTotalPedido(),
+      total_envio: TARIFA_ENVIO,
+      total: (calcularTotalPedido() + TARIFA_ENVIO).toFixed(2),
+      estado: "pendiente",
+      guia: null,
+      tipo_pago: paymentMethod,
+      pago_esta_listo: false,
+    };
+
+    const pedidoCreado = await pedidosService.add(pedidoFinal);
+
+    console.log(pedidoFinal);
+
+    if (pedidoCreado.data && !pedidoCreado.error) {
+      clearCart();
+
+      setOrderSeccess(`${(pedidoCreado.data as any).id}` || "");
+    } else {
+      toast.error(`${JSON.stringify(pedidoCreado.error)}`);
+      setOrderSeccess(null);
+    }
+
+    setLoading(false);
+  };
+
+  if (orderSucess) return <OrderSeccess id={orderSucess} />;
+
   return (
     <>
-      {" "}
+      {loading && <LoadingPage customText="Realizando Pedido" />}
+
+      <Navbar />
       <div
         className="relative z-10"
         aria-labelledby="slide-over-title"
@@ -179,7 +251,7 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
                                         }
                                       >
                                         <p className="text-[12px] font-bold">
-                                          {direccion.nombre_direccion}
+                                          {direccion.nombre_receptor}
                                         </p>
                                         <p className="text-[10px] text-gray-800 mb-1">
                                           {direccion.departamento},{" "}
@@ -239,10 +311,10 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
                           </div>
 
                           {showPagos && (
-                            <div className="mt-6 grid grid-cols-2 gap-4">
+                            <div className="mt-6 grid grid-cols-2 gap-4 ">
                               <button
                                 onClick={() => setPaymentMethod("deposito")}
-                                className={`text-sm border bg-white p-2 shadow rounded-xl ${
+                                className={`mt-4 text-sm border bg-white p-2 shadow rounded-xl ${
                                   paymentMethod === "deposito"
                                     ? "ring-2 ring-primary"
                                     : ""
@@ -251,16 +323,27 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
                                 Transferencia o Deposito
                               </button>
 
-                              <button
-                                onClick={() => setPaymentMethod("cod")}
-                                className={`text-sm border bg-white p-2 shadow rounded-xl ${
-                                  paymentMethod === "cod"
-                                    ? "ring-2 ring-primary"
-                                    : ""
-                                }`}
-                              >
-                                Pago contra entrega
-                              </button>
+                              {calcularTotalPedido() < MAX_COD_PRICE ? (
+                                <button
+                                  onClick={() => setPaymentMethod("cod")}
+                                  className={`mt-4 text-sm border bg-white p-2 shadow rounded-xl ${
+                                    paymentMethod === "cod"
+                                      ? "ring-2 ring-primary"
+                                      : ""
+                                  }`}
+                                >
+                                  Pago contra entrega
+                                </button>
+                              ) : (
+                                <div
+                                  className={`mt-4 whitespace-nowrap text-center relative text-sm border bg-gray-100 p-2 shadow rounded-xl`}
+                                >
+                                  Pago contra entrega
+                                  <span className="font-bold bg-red-500 text-white p-1 rounded-lg absolute -top-5 -right-3 text-[8px]">
+                                    Solo pedidos menores a Q{MAX_COD_PRICE}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -274,7 +357,7 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
                               <div className="flex items-center gap-5">
                                 <FaCheckCircle
                                   className={
-                                    selectedFactura
+                                    selectedNit
                                       ? "text-green-600"
                                       : "text-gray-500"
                                   }
@@ -298,19 +381,38 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
 
                           {showFactura && (
                             <div>
-                              <div className="mt-4">
+                              <div className="mt-4 grid grid-cols-2 gap-3">
                                 <button
+                                  onClick={() => setSelectedNit(defaultNit)}
                                   className={`border p-3 rounded-lg ring-primary ${
-                                    selectedFactura.nombre === "C/F"
-                                      ? "ring-2"
-                                      : ""
+                                    selectedNit.numero === "C/F" ? "ring-2" : ""
                                   }`}
                                 >
                                   CF
                                 </button>
+
+                                {user.nits.map((nit, iNit) => (
+                                  <button
+                                    onClick={() => setSelectedNit(nit)}
+                                    key={iNit}
+                                    className={`font-bold capitalize text-[8px] border p-3 rounded-lg ring-primary ${
+                                      selectedNit.numero === nit.numero
+                                        ? "ring-2"
+                                        : ""
+                                    }`}
+                                  >
+                                    {nit.nombre} -{" "}
+                                    <span className="text-gray-600 font-light">
+                                      {nit.numero}
+                                    </span>
+                                  </button>
+                                ))}
                               </div>
                               <div>
-                                <button className="text-xs font-bold mt-5 w-full flex items-center justify-center rounded-md border border-transparent bg-primary p-2 text-white shadow-sm hover:bg-blue-700 disabled:bg-gray-800">
+                                <button
+                                  onClick={() => setAddingNit(true)}
+                                  className="text-xs font-bold mt-5 w-full flex items-center justify-center rounded-md border border-transparent bg-primary p-2 text-white shadow-sm hover:bg-blue-700 disabled:bg-gray-800"
+                                >
                                   Agregar Nit +
                                 </button>
                               </div>
@@ -445,16 +547,36 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
 
                         <div className="flex justify-between text-base font-medium text-gray-900">
                           <p>Total A Pagar</p>
-                          <p>Q{(calcularTotalPedido() + 35).toFixed(2)}</p>
+                          <p>
+                            Q{(calcularTotalPedido() + TARIFA_ENVIO).toFixed(2)}
+                          </p>
                         </div>
 
                         <div className="mt-4">
                           <button
+                            onClick={() => sendPedido()}
                             disabled={selectedAddress ? false : true}
                             className="w-full flex items-center justify-center rounded-md border border-transparent bg-primary p-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 disabled:bg-gray-500"
                           >
                             Finalizar Pedido
                           </button>
+
+                          {selectedAddress ? (
+                            <p className="text-xs text-center px-12 mt-5 text-gray-800">
+                              Se enviara este pedido a{" "}
+                              <span className="text-primary">
+                                {selectedAddress?.direccion_exacta}
+                              </span>
+                            </p>
+                          ) : (
+                            <p className="whitespace-nowrap text-xs text-center px-12 mt-5 text-gray-800">
+                              Por favor seleccione{" "}
+                              <span className="text-red-500">
+                                una direccion
+                              </span>{" "}
+                              de envio
+                            </p>
+                          )}
                         </div>
                       </>
                     )}
@@ -469,6 +591,13 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
         <CreateAddressModal
           setSelectedAddress={(newAddress) => setSelectedAddress(newAddress)}
           close={() => setAddingAddress(false)}
+        />
+      )}
+
+      {addingNit && (
+        <CreateNit
+          close={() => setAddingNit(false)}
+          setSelectedNit={(nitData) => setSelectedNit(nitData)}
         />
       )}
     </>

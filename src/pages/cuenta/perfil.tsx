@@ -62,7 +62,10 @@ const MyAccount = () => {
       </div>
 
       <div className="grid grid-cols-2 gap-4 mt-4 px-8">
-        <button className="text-sm shadow border p-4 rounded-lg flex flex-col items-center justify-center">
+        <button
+          onClick={() => router.push(`/cuenta/pedidos`)}
+          className="text-sm shadow border p-4 rounded-lg flex flex-col items-center justify-center"
+        >
           <img
             className="mb-2"
             width={30}

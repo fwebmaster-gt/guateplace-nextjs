@@ -1,3 +1,4 @@
+import { Pedido } from "@/types/pedido";
 import {
   AuthService,
   FirestoreService,
@@ -20,3 +21,4 @@ export const auth = new AuthService(app);
 export const customerService = new FirestoreService(app, "clientes");
 export const productService = new FirestoreService(app, "productos");
 export const categoryService = new FirestoreService(app, "categorias");
+export const pedidosService = new FirestoreService<Pedido>(app, "pedidos");
