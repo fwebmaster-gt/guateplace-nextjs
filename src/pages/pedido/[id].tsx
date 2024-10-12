@@ -4,7 +4,6 @@
 import { MySpinner } from "@/components/LoadingPage";
 import LoginToContinue from "@/components/LoginToContinue";
 import Navbar from "@/components/Navbar";
-import { calcularSubtotal } from "@/constants/prices";
 import { pedidosService, productService } from "@/database/config";
 import { Producto, useAuthStore } from "@/hooks/useAuth";
 import { Pedido } from "@/types/pedido";
