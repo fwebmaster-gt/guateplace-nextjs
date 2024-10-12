@@ -52,7 +52,9 @@ const MyAccount = () => {
                 alt="lanacoin"
               />
               <p className="text-xs whitespace-nowrap">
-                <span className="font-bold">{user.lanacoins || 0}</span>{" "}
+                <span className="font-bold">
+                  {user.lanacoins.toFixed(2) || 0}
+                </span>{" "}
                 Lanacoins
               </p>
             </div>
