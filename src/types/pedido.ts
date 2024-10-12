@@ -12,6 +12,10 @@ export interface Pedido {
   tipo_pago: string;
   pago_esta_listo: boolean;
   id: string;
+  recompensas: {
+    lanacoins: number;
+    xp: number;
+  };
 }
 
 export interface ProductosPedido {

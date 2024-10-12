@@ -45,6 +45,8 @@ export interface Customer {
   favoritos: string[];
   pedidos: [];
   avatar: string;
+  xp: number;
+  lanacoins: number;
 }
 
 interface ProfileState {

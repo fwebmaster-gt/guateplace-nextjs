@@ -8,10 +8,15 @@ import LoadingPage from "@/components/LoadingPage";
 import Navbar from "@/components/Navbar";
 import OrderSeccess from "@/components/OrderSeccess";
 import { calcularSubtotal } from "@/constants/prices";
-import { pedidosService, productService } from "@/database/config";
+import {
+  customerService,
+  pedidosService,
+  productService,
+} from "@/database/config";
 import { useAppStore } from "@/hooks/useAppStore";
 import { Direccion, Nit, useAuthStore } from "@/hooks/useAuth";
 import { useCartStore } from "@/hooks/useCart";
+import { Pedido } from "@/types/pedido";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -25,6 +30,62 @@ import {
 const MAX_COD_PRICE = 1000;
 const TARIFA_ENVIO = 35;
 
+export function calculateUserLevel(totalXp: number) {
+  if (totalXp <= 20) {
+    return {
+      nombre: "bronce",
+      color: "text-orange-500",
+    };
+  }
+
+  if (totalXp >= 21 && totalXp <= 50) {
+    return {
+      nombre: "plata",
+      color: "text-gray-400",
+    };
+  }
+
+  if (totalXp >= 51 && totalXp <= 85) {
+    return {
+      nombre: "oro",
+      color: "text-yellow-500",
+    };
+  }
+  return {
+    nombre: "diamante",
+    color: "text-primary",
+  };
+}
+
+export function calculateXp(totalVenta: number) {
+  if (totalVenta <= 300) return 7;
+  if (totalVenta >= 301 && totalVenta <= 600) return 12;
+  if (totalVenta >= 501 && totalVenta <= 900) return 18;
+  if (totalVenta >= 901) return 23;
+
+  return 0;
+}
+
+export function calculateLanacoins(nivel: string, totalVenta: number) {
+  if (nivel === "bronce") {
+    return totalVenta * 0.01;
+  }
+
+  if (nivel === "plata") {
+    return totalVenta * 0.02;
+  }
+
+  if (nivel === "oro") {
+    return totalVenta * 0.025;
+  }
+
+  if (nivel === "diamante") {
+    return totalVenta * 0.03;
+  }
+
+  return 0;
+}
+
 const defaultNit = {
   nombre: "C/F",
   numero: "C/F",
@@ -32,11 +93,11 @@ const defaultNit = {
 
 const CheckoutPage = ({ products }: { products: any[] }) => {
   const router = useRouter();
-  const [orderSucess, setOrderSeccess] = useState<null | string>(null);
+  const [orderSucess, setOrderSeccess] = useState<null | Pedido>(null);
   const [loading, setLoading] = useState(false);
   const { productsInCart, clearCart } = useCartStore();
   const { setLoginToContinue } = useAppStore();
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
 
   const [showProducts, setShowProducts] = useState(false);
   const [showEnvio, setShowEnvio] = useState(true);
@@ -87,6 +148,17 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
 
     if (confirmOp === false) return;
 
+    const userXp = user.xp || 0;
+
+    const userLevel = calculateUserLevel(userXp);
+
+    const recompensaXp = calculateXp(calcularTotalPedido());
+
+    const recompensaLanacoins = calculateLanacoins(
+      userLevel.nombre,
+      calcularTotalPedido()
+    );
+
     setLoading(true);
 
     const populatedProduct = productsInCart.map((pCart) => {
@@ -107,18 +179,23 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
     });
 
     const pedidoFinal = {
+      recompensas: {
+        lanacoins: recompensaLanacoins,
+        xp: recompensaXp,
+      },
       fecha: Date.now(),
       cliente_id: user.id,
       productos_pedidos: populatedProduct,
       info_envio: selectedAddress,
       info_factura: selectedNit,
-      sub_total: calcularTotalPedido(),
-      total_envio: TARIFA_ENVIO,
+      sub_total: calcularTotalPedido().toFixed(2),
+      total_envio: TARIFA_ENVIO.toFixed(2),
       total: (calcularTotalPedido() + TARIFA_ENVIO).toFixed(2),
       estado: "pendiente",
       guia: null,
       tipo_pago: paymentMethod,
       pago_esta_listo: false,
+      lanacoins: 0,
     };
 
     const pedidoCreado = await pedidosService.add(pedidoFinal);
@@ -128,7 +205,22 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
     if (pedidoCreado.data && !pedidoCreado.error) {
       clearCart();
 
-      setOrderSeccess(`${(pedidoCreado.data as any).id}` || "");
+      setOrderSeccess(pedidoCreado.data);
+
+      customerService.update(
+        user.id,
+        {
+          lanacoins: (user.lanacoins || 0) + recompensaLanacoins,
+          xp: (user.xp || 0) + recompensaXp,
+        },
+        true
+      );
+
+      setUser({
+        ...user,
+        lanacoins: (user.lanacoins || 0) + recompensaLanacoins,
+        xp: (user.xp || 0) + recompensaXp,
+      });
     } else {
       toast.error(`${JSON.stringify(pedidoCreado.error)}`);
       setOrderSeccess(null);
@@ -137,7 +229,14 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
     setLoading(false);
   };
 
-  if (orderSucess) return <OrderSeccess id={orderSucess} />;
+  if (orderSucess)
+    return (
+      <OrderSeccess
+        id={orderSucess.id}
+        lanacoins={orderSucess.recompensas.lanacoins || 0}
+        puntos={orderSucess.recompensas.xp || 0}
+      />
+    );
 
   return (
     <>

@@ -43,6 +43,8 @@ const CreateProfile = () => {
         nits: [],
         pedidos: [],
         id: cUser.uid,
+        xp: 0,
+        lanacoins: 0,
       },
       cUser.uid
     );

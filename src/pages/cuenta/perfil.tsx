@@ -4,7 +4,9 @@ import Navbar from "@/components/Navbar";
 import { auth } from "@/database/config";
 import { useAuthStore } from "@/hooks/useAuth";
 import { useRouter } from "next/router";
-import { FaMedal, FaTruck } from "react-icons/fa";
+import { FaMedal } from "react-icons/fa";
+import { calculateUserLevel } from "../pedido";
+import { FaArrowTrendUp } from "react-icons/fa6";
 
 const MyAccount = () => {
   const { user } = useAuthStore();
@@ -30,9 +32,11 @@ const MyAccount = () => {
               className="rounded-lg border mx-auto mb-2"
             />
             <div className="flex border p-2 rounded-lg gap-1">
-              <FaMedal className="text-yellow-600 text-xs" />
+              <FaMedal
+                className={`${calculateUserLevel(user.xp || 0).color} text-xs`}
+              />
               <p className="text-[8px] whitespace-nowrap font-bold text-gray-700">
-                Cliente Bronce
+                Cliente {calculateUserLevel(user.xp || 0).nombre}
               </p>
             </div>
           </div>
@@ -48,13 +52,14 @@ const MyAccount = () => {
                 alt="lanacoin"
               />
               <p className="text-xs whitespace-nowrap">
-                <span className="font-bold">80</span> Lanacoins
+                <span className="font-bold">{user.lanacoins || 0}</span>{" "}
+                Lanacoins
               </p>
             </div>
             <div className="flex text-xs items-center mt-1 justify-between w-[70%]">
-              <FaTruck className="text-primary w-[20px] h-[20px]" />
+              <FaArrowTrendUp className="text-green-600 w-[20px] h-[20px]" />
               <p className="text-xs whitespace-nowrap">
-                <span className="font-bold">10</span> Envio
+                <span className="font-bold">{user.xp || 0}</span> Puntos
               </p>
             </div>
           </div>

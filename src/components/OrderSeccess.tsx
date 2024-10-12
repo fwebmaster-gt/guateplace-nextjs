@@ -1,29 +1,51 @@
+/* eslint-disable jsx-a11y/alt-text */
 import { useRouter } from "next/router";
 import Navbar from "./Navbar";
 
 /* eslint-disable @next/next/no-img-element */
-const OrderSeccess = ({ id }: { id: string }) => {
+const OrderSeccess = ({
+  id,
+  lanacoins,
+  puntos,
+}: {
+  id: string;
+  lanacoins: number;
+  puntos: number;
+}) => {
   const router = useRouter();
 
   return (
     <div>
       <Navbar />
       <div className="flex items-center justify-center">
-        <div className="mt-12">
-          <img
-            className="mx-auto"
-            src="/gracias.gif"
-            alt="gracias-por-comprar"
-            width={200}
-            height={200}
-          />
-
+        <div className="mt-6">
           <h2 className="font-bold text-xl text-center">
             Gracias por tu compra
           </h2>
           <p className="text-xs text-gray-700">
             Pronto nos pondremos en contacto contigo
           </p>
+
+          <div className="border p-2 rounded-lg text-center mt-5">
+            <img
+              className="mx-auto"
+              src="/gracias.gif"
+              alt="gracias-por-comprar"
+              width={150}
+              height={150}
+            />
+            <h2 className="font-bold text-center">Recompensas</h2>
+
+            <p>
+              {" "}
+              <span className="text-primary">{puntos}</span> Puntos
+            </p>
+            <p className="flex items-center justify-center gap-1">
+              {" "}
+              <span className="text-primary">{lanacoins}</span> Lanacoins{" "}
+              <img width={25} height={25} src={"/lanacoin.png"} />
+            </p>
+          </div>
 
           <button
             onClick={() => router.push(`/pedido/${id}`)}
