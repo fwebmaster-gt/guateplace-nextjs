@@ -68,19 +68,19 @@ export function calculateXp(totalVenta: number) {
 
 export function calculateLanacoins(nivel: string, totalVenta: number) {
   if (nivel === "bronce") {
-    return totalVenta * 0.01;
+    return totalVenta * 0.015;
   }
 
   if (nivel === "plata") {
-    return totalVenta * 0.02;
-  }
-
-  if (nivel === "oro") {
     return totalVenta * 0.025;
   }
 
-  if (nivel === "diamante") {
+  if (nivel === "oro") {
     return totalVenta * 0.03;
+  }
+
+  if (nivel === "diamante") {
+    return totalVenta * 0.035;
   }
 
   return 0;
@@ -195,7 +195,6 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
       guia: null,
       tipo_pago: paymentMethod,
       pago_esta_listo: false,
-      lanacoins: 0,
     };
 
     const pedidoCreado = await pedidosService.add(pedidoFinal);

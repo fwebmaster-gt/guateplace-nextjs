@@ -1,8 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable jsx-a11y/alt-text */
+
 import { useRouter } from "next/router";
 import Navbar from "./Navbar";
 
-/* eslint-disable @next/next/no-img-element */
 const OrderSeccess = ({
   id,
   lanacoins,
@@ -42,8 +43,8 @@ const OrderSeccess = ({
             </p>
             <p className="flex items-center justify-center gap-1">
               {" "}
-              <span className="text-primary">{lanacoins}</span> Lanacoins{" "}
-              <img width={25} height={25} src={"/lanacoin.png"} />
+              <span className="text-primary">{lanacoins.toFixed(2)}</span>{" "}
+              Lanacoins <img width={25} height={25} src={"/lanacoin.png"} />
             </p>
           </div>
 
