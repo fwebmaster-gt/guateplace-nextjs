@@ -69,19 +69,19 @@ export function calculateXp(totalVenta: number) {
 
 export function calculateLanacoins(nivel: string, totalVenta: number) {
   if (nivel === "bronce") {
-    return totalVenta * 0.015;
-  }
-
-  if (nivel === "plata") {
     return totalVenta * 0.025;
   }
 
-  if (nivel === "oro") {
+  if (nivel === "plata") {
     return totalVenta * 0.03;
   }
 
-  if (nivel === "diamante") {
+  if (nivel === "oro") {
     return totalVenta * 0.035;
+  }
+
+  if (nivel === "diamante") {
+    return totalVenta * 0.04;
   }
 
   return 0;
