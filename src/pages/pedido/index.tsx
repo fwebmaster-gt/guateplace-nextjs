@@ -29,6 +29,7 @@ import {
 
 const MAX_COD_PRICE = 1000;
 const TARIFA_ENVIO = 35;
+const MONTO_MINIMO_COMPRA = 100;
 
 export function calculateUserLevel(totalXp: number) {
   if (totalXp <= 20) {
@@ -653,7 +654,12 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
                         <div className="mt-4">
                           <button
                             onClick={() => sendPedido()}
-                            disabled={selectedAddress ? false : true}
+                            disabled={
+                              selectedAddress &&
+                              calcularTotalPedido() >= MONTO_MINIMO_COMPRA
+                                ? false
+                                : true
+                            }
                             className="w-full flex items-center justify-center rounded-md border border-transparent bg-primary p-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 disabled:bg-gray-500"
                           >
                             Finalizar Pedido

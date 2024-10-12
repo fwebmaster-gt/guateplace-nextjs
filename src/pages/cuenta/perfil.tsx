@@ -83,18 +83,10 @@ const MyAccount = () => {
           Pedidos
         </button>
 
-        <button className="text-sm shadow border p-4 rounded-lg flex flex-col items-center justify-center">
-          <img
-            className="mb-2"
-            width={30}
-            height={30}
-            src="/billetera.png"
-            alt="truck"
-          />{" "}
-          Billetera
-        </button>
-
-        <button className="text-sm shadow border p-4 rounded-lg flex flex-col items-center justify-center">
+        <button
+          onClick={() => router.push(`/cuenta/direcciones`)}
+          className="text-sm shadow border p-4 rounded-lg flex flex-col items-center justify-center"
+        >
           <img
             className="mb-2"
             width={30}
@@ -114,6 +106,17 @@ const MyAccount = () => {
             alt="truck"
           />{" "}
           Facturacion
+        </button>
+
+        <button className="text-sm shadow border p-4 rounded-lg flex flex-col items-center justify-center">
+          <img
+            className="mb-2"
+            width={30}
+            height={30}
+            src="/tienda.png"
+            alt="truck"
+          />{" "}
+          Vender
         </button>
       </div>
 
