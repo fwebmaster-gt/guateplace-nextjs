@@ -35,7 +35,7 @@ export default function Home({
       <Seo />
       <Navbar />
 
-      <div className="px-4">
+      <div className="px-4 lg:hidden">
         <div className="w-full mt-8 mb-5">
           <div className="relative">
             <input

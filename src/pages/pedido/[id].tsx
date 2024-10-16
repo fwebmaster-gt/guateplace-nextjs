@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { BsArrowLeft } from "react-icons/bs";
+import { FaUpload } from "react-icons/fa";
 
 export const estadoColors: any = {
   pendiente: "bg-orange-300 text-white border-orange-500",
@@ -105,31 +106,34 @@ const PedidoInfo = ({ products }: { products: Producto[] }) => {
           </div>
         </div>
 
-        <h2 className="text-xl mt-3 font-bold mb-5">Info De Envio</h2>
+        <h2 className="text-xl mt-3 font-bold mb-5">Informacion de pago</h2>
 
-        <div className=" border p-4 rounded-lg">
-          <div>
-            <p className="mb-3">
-              <b> Nombre de receptor</b>: {pedido.info_envio.nombre_receptor}
-            </p>
+        <div className=" border p-4 rounded-lg mt-3">
+          <p className="bg-gray-100 uppercase items-center justify-center flex p-2 rounded-lg font-bold text-center text-gray-800">
+            {pedido.tipo_pago === "cod"
+              ? "Pago contra entrega"
+              : "Deposito/Transferencia"}
+          </p>
 
-            <p className="mb-3">
-              <b> Telefono</b>: {pedido.info_envio.tel1}
-            </p>
+          <div className="text-gray-700 text-center mt-4 text-xs">
+            {" "}
+            {pedido.tipo_pago === "cod" ? (
+              "Genial! tienes que realizar tu pago hasta recibir tu pedido."
+            ) : (
+              <>
+                <p className="mb-4">
+                  Gracias por tu compra. Por favor, realiza el pago y luego sube
+                  una imagen o captura del comprobante de depósito o
+                  transferencia.
+                </p>
 
-            <p className="mb-3">
-              <b> Destino</b>: {pedido.info_envio.municipio},{" "}
-              {pedido.info_envio.departamento}
-            </p>
-            <p className="mb-3">
-              <b>Direccion Exacta: </b>
-              {pedido.info_envio.direccion_exacta},{" "}
-              {pedido.info_envio.municipio} , {pedido.info_envio.departamento}
-            </p>
+                <button className="capitalize font-bold bg-primary text-white p-2 rounded-lg w-full flex items-center justify-center gap-5 mb-5">
+                  Subir imagen del pago <FaUpload />
+                </button>
 
-            <p className="mb-3">
-              <b> Precio Envio</b>: Q{pedido.total_envio}
-            </p>
+                <img className="rounded-lg" src="/cuenta-ahorro.png" alt="lo" />
+              </>
+            )}
           </div>
         </div>
 
@@ -185,6 +189,34 @@ const PedidoInfo = ({ products }: { products: Producto[] }) => {
               );
             })}
           </ul>
+        </div>
+
+        <h2 className="text-xl mt-3 font-bold mb-5">Info De Envio</h2>
+
+        <div className=" border p-4 rounded-lg">
+          <div>
+            <p className="mb-3">
+              <b> Nombre de receptor</b>: {pedido.info_envio.nombre_receptor}
+            </p>
+
+            <p className="mb-3">
+              <b> Telefono</b>: {pedido.info_envio.tel1}
+            </p>
+
+            <p className="mb-3">
+              <b> Destino</b>: {pedido.info_envio.municipio},{" "}
+              {pedido.info_envio.departamento}
+            </p>
+            <p className="mb-3">
+              <b>Direccion Exacta: </b>
+              {pedido.info_envio.direccion_exacta},{" "}
+              {pedido.info_envio.municipio} , {pedido.info_envio.departamento}
+            </p>
+
+            <p className="mb-3">
+              <b> Precio Envio</b>: Q{pedido.total_envio}
+            </p>
+          </div>
         </div>
       </div>
     </div>

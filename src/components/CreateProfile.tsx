@@ -4,6 +4,7 @@ import { auth, customerService } from "@/database/config";
 import { useAuthStore } from "@/hooks/useAuth";
 import { useState } from "react";
 import { BiEdit } from "react-icons/bi";
+import LoadingPage from "./LoadingPage";
 
 export const avatars = [
   "/avatars/avatar1.png",
@@ -52,11 +53,11 @@ const CreateProfile = () => {
     setUser(res.data as never);
   };
 
-  if (creating) return <p>Loading page...</p>;
+  if (creating) return <LoadingPage customText="Guardando perfil" />;
 
   return (
     <div className="pb-20 z-50">
-      <div className="p-5 mt-8">
+      <div className="p-5 mt-8 lg:w-1/3 mx-auto">
         <p className="text-center font-bold text-2xl text-gray-800">
           Bienvenido
         </p>
@@ -98,11 +99,11 @@ const CreateProfile = () => {
               ))}
             </div>
 
-            <div className="fixed bottom-5 left-0 mt-8 w-full px-5">
+            <div className="fixed lg:relative bottom-5 left-0 mt-8 w-full px-5 bg-red-200 lg:flex lg:justify-center">
               <button
                 onClick={() => setPickAvatar(false)}
                 type="button"
-                className="w-full font-bold shadow-xl py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-primary hover:bg-blue-600 focus:outline-none"
+                className="lg:w-1/3 w-full font-bold shadow-xl py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-primary hover:bg-blue-600 focus:outline-none"
               >
                 Continuar
               </button>

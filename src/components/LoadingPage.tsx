@@ -27,7 +27,7 @@ const LoadingPage = ({ customText }: Props) => {
           ""
         ) : (
           <h2 className="text-gray-800 capitalize text-xl text-center font-bold">
-            Bienvenido a<span className="text-primary">Guate</span>place
+            Bienvenido a <span className="text-primary">Guate</span>place
           </h2>
         )}
 
@@ -37,6 +37,7 @@ const LoadingPage = ({ customText }: Props) => {
           </p>
         ) : (
           <p className="text-center text-gray-500 text-xs w-[80%] mx-auto">
+            {" "}
             La mejor tienda online en{" "}
             <span className="font-bold">Guatemala</span>
           </p>

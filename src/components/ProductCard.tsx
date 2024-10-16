@@ -7,7 +7,7 @@ import { useCartStore } from "@/hooks/useCart";
 import Link from "next/link";
 import { AiOutlineShoppingCart } from "react-icons/ai";
 import { BsCartX, BsFillSuitHeartFill } from "react-icons/bs";
-import { MdDelete, MdStar } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
 
 const ProductCard = ({ p }: any) => {
   const {
@@ -28,16 +28,9 @@ const ProductCard = ({ p }: any) => {
       className="relative border shadow-sm border-gray-300 rounded-lg overflow-hidden"
       key={p.id}
     >
-      {p.rating && (
-        <p className="absolute z-30 flex items-center text-sm font-bold top-5 right-5 bg-primary text-white py-1 px-2 rounded-lg">
-          <MdStar className="text-yellow-400 text-xl" />
-          {p.rating}
-        </p>
-      )}
-
       {favoritos.includes(p.id) ? (
         <BsFillSuitHeartFill
-          className={`z-10 absolute top-5 left-5 text-3xl text-red-500`}
+          className={`z-10 absolute top-5 right-2 text-3xl text-red-500`}
           onClick={() => {
             if (user) {
               addOrRemoveWishList(p.id);
@@ -55,14 +48,14 @@ const ProductCard = ({ p }: any) => {
               setLoginToContinue({ block: false, value: true });
             }
           }}
-          className={`z-10 absolute top-5 left-5 text-3xl text-blue-500/50`}
+          className={`z-10 absolute top-5 right-2 text-3xl text-blue-500/70`}
         />
       )}
 
       <div className="relative">
         <Link href={`/productos/${p.id}`}>
           <img
-            className="w-full h-44 object-cover"
+            className="w-32 h-32 mx-auto md:h-64 md:w-64 object-cover mt-4 rounded-lg"
             src={p.imagenes[0]}
             alt={p.nombre}
           />
@@ -74,12 +67,12 @@ const ProductCard = ({ p }: any) => {
             }}
             className={`${
               p.label_color ? "" : "bg-red-600"
-            } absolute bottom-4 left-4 p-2 text-white text-xs rounded-lg font-bold`}
+            } absolute bottom-4 left-4 p-1 text-white text-[10px] rounded-lg font-bold`}
           >
             {p.label}
           </p>
         ) : p.precio_especial ? (
-          <p className="bg-red-600 absolute bottom-4 left-4 p-2 text-white text-xs rounded-lg font-bold">
+          <p className="bg-red-600 absolute bottom-4 left-4 p-1 text-white text-[10px] rounded-lg font-bold">
             - {calcularDescuento(+p.precio, +p.precio_especial)} %
           </p>
         ) : (
@@ -87,29 +80,29 @@ const ProductCard = ({ p }: any) => {
         )}
       </div>
 
-      <div className="p-3 bg-white h-[150px] overflow-hidden flex flex-col justify-between">
-        <Link href={`/productos/${p.id}`}>
+      <div className="p-3 bg-white overflow-hidden flex flex-col justify-between">
+        <Link className="mb-3" href={`/productos/${p.id}`}>
+          <p className="h-10 capitalize text-xs lg:text-base text-gray-800 font-bold text-elipsis-2">
+            {p.nombre}
+          </p>
+
           <div className="flex gap-2">
             {p.precio_especial ? (
               <>
-                <p className="font-bold text-xl capitalize lg:text-base text-gray-800">
+                <p className="font-bold capitalize lg:text-base text-gray-800">
                   Q{p.precio_especial}
                 </p>
 
-                <p className="line-through font-boldcapitalize text-sm lg:text-base font-bold text-gray-500">
+                <p className="line-through capitalize text-xs lg:text-base text-gray-500">
                   Q{p.precio}
                 </p>
               </>
             ) : (
-              <p className="font-bold text-xl capitalize lg:text-base text-gray-800">
+              <p className="font-bold capitalize lg:text-base text-gray-800">
                 Q{p.precio}
               </p>
             )}
           </div>
-
-          <p className="capitalize text-xs lg:text-base text-gray-900">
-            {p.nombre}
-          </p>
         </Link>
 
         {p.out_stock === true ? (

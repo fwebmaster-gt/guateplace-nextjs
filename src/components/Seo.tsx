@@ -3,9 +3,11 @@ import { useRouter } from "next/router";
 
 export const defaultSeo = {
   company: "Guateplace",
-  title: "Tienda en Linea",
-  description: `La mejor tienda en linea de Guatemala`,
-  keywords: "stone ways, stone walk, chimneys, patios, gardens",
+  title: "Guateplace - Tu Tienda en Línea",
+  description:
+    "Descubre la mejor experiencia de compra en línea en Guatemala con productos de calidad y ofertas exclusivas.",
+  keywords:
+    "comprar online, tienda en línea, ecommerce Guatemala, productos, ofertas, Guateplace, Guatemala",
 };
 
 interface Props {
@@ -18,7 +20,9 @@ interface Props {
 const Seo = ({ title, description, keywords, image }: Props) => {
   const router = useRouter();
 
-  const metUrl = `https://thebestsolutionmasonryinc.com/${router.asPath}`;
+  const metUrl = `https://guateplace.com${router.asPath}`;
+
+  console.log(metUrl);
 
   const ogImage = image || "/images/cover-company.jpeg";
 
