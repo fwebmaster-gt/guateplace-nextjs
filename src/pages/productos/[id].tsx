@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import { categoryService, productService } from "@/database/config";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -23,6 +24,12 @@ const ProductoDetails = ({
 
   return (
     <div>
+      <Seo
+        title={productDetails.nombre}
+        description={productDetails.detalles}
+        image={productDetails.imagenes[0]}
+        keywords={productDetails.tags}
+      />
       <Navbar />
       <div>
         <div className="container mx-auto px-4 py-8">

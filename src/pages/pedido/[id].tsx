@@ -3,7 +3,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MySpinner } from "@/components/LoadingPage";
 import LoginToContinue from "@/components/LoginToContinue";
+import Modal from "@/components/Modal";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import { pedidosService, productService } from "@/database/config";
 import { Producto, useAuthStore } from "@/hooks/useAuth";
 import { Pedido } from "@/types/pedido";
@@ -21,6 +23,8 @@ export const estadoColors: any = {
 
 const PedidoInfo = ({ products }: { products: Producto[] }) => {
   const [data, setData] = useState<Pedido[]>([]);
+
+  const [toUpload, setToUpload] = useState<null | File>(null);
 
   const { user } = useAuthStore();
 
@@ -46,6 +50,28 @@ const PedidoInfo = ({ products }: { products: Producto[] }) => {
 
   return (
     <div>
+      <Seo title={`Pedido #${pedidoId}`} />
+      {toUpload && (
+        <Modal
+          title="Subiendo Evidencia De Pago"
+          close={() => setToUpload(null)}
+          confirmButton={{
+            text: "Subir imagen",
+            action: () => {
+              console.log("subiendo...");
+            },
+          }}
+        >
+          <div className="flex items-center justify-center">
+            <img
+              className="max-h-72 rounded-lg"
+              src={URL.createObjectURL(toUpload)}
+              alt="pago"
+            />
+          </div>
+        </Modal>
+      )}
+
       <Navbar />
 
       <div className="p-5">
@@ -127,11 +153,29 @@ const PedidoInfo = ({ products }: { products: Producto[] }) => {
                   transferencia.
                 </p>
 
-                <button className="capitalize font-bold bg-primary text-white p-2 rounded-lg w-full flex items-center justify-center gap-5 mb-5">
-                  Subir imagen del pago <FaUpload />
-                </button>
+                <div className="relative">
+                  <button className="text-base capitalize font-bold bg-primary text-white p-3 rounded-lg w-full flex items-center justify-center gap-5 mb-5 mt-8">
+                    Subir imagen del pago <FaUpload />
+                  </button>
+                  <input
+                    className="bg-red-200 absolute top-0 left-0 w-full h-full opacity-0"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files?.length) {
+                        setToUpload(e.target.files[0]);
+                      }
+                    }}
+                  />
+                </div>
 
-                <img className="rounded-lg" src="/cuenta-ahorro.png" alt="lo" />
+                <div className="mt-12">
+                  <img
+                    className="rounded-lg"
+                    src="/cuenta-ahorro.png"
+                    alt="lo"
+                  />
+                </div>
               </>
             )}
           </div>

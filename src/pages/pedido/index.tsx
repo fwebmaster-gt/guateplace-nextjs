@@ -7,6 +7,7 @@ import CreateNit from "@/components/CreateNit";
 import LoadingPage from "@/components/LoadingPage";
 import Navbar from "@/components/Navbar";
 import OrderSeccess from "@/components/OrderSeccess";
+import Seo from "@/components/Seo";
 import { calcularSubtotal } from "@/constants/prices";
 import {
   customerService,
@@ -240,6 +241,10 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
 
   return (
     <>
+      <Seo
+        title="Nuevo Pedido"
+        description="Estas a punto de finalizar tu pedido"
+      />
       {loading && <LoadingPage customText="Realizando Pedido" />}
 
       <Navbar />

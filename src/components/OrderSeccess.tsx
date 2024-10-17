@@ -3,6 +3,7 @@
 
 import { useRouter } from "next/router";
 import Navbar from "./Navbar";
+import Seo from "./Seo";
 
 const OrderSeccess = ({
   id,
@@ -17,6 +18,10 @@ const OrderSeccess = ({
 
   return (
     <div>
+      <Seo
+        title="Pedido Completado"
+        description="El pedido finalizo correctamente"
+      />
       <Navbar />
       <div className="flex items-center justify-center">
         <div className="mt-6">

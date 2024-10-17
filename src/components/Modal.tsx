@@ -7,7 +7,7 @@ interface Props {
   confirmButton: {
     text?: string;
     action: () => void;
-    disabled: boolean;
+    disabled?: boolean;
   };
   children: ReactNode;
 }

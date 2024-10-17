@@ -1,6 +1,7 @@
 {
   "name": "Tienda en linea | Guateplace",
   "short_name": "Guateplace",
+  "description": "Descubre la mejor experiencia de compra en línea en Guatemala con productos de calidad y ofertas exclusivas.",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -15,5 +16,6 @@
   ],
   "theme_color": "#ffffff",
   "background_color": "#ffffff",
-  "display": "standalone"
+  "display": "standalone",
+  "start_url": "/"
 }

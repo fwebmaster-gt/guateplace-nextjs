@@ -24,7 +24,7 @@ const Seo = ({ title, description, keywords, image }: Props) => {
 
   console.log(metUrl);
 
-  const ogImage = image || "/images/cover-company.jpeg";
+  const ogImage = image || "/guateplace.png";
 
   return (
     <Head>
@@ -64,10 +64,23 @@ const Seo = ({ title, description, keywords, image }: Props) => {
       <title>
         {title ? title : `${defaultSeo.company} | ${defaultSeo.title}`}
       </title>
-      <link rel="apple-touch-icon" href="/images/logo.png" />
-      <link rel="apple-touch-icon" sizes="152x152" href="/images/logo.png" />
-      <link rel="apple-touch-icon" sizes="180x180" href="/images/logo.png" />
-      <link rel="apple-touch-icon" sizes="167x167" href="/images/logo.png" />
+      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      <link
+        rel="apple-touch-icon"
+        sizes="152x152"
+        href="/apple-touch-icon.png"
+      />
+      <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/apple-touch-icon.png"
+      />
+      <link
+        rel="apple-touch-icon"
+        sizes="167x167"
+        href="/apple-touch-icon.png"
+      />
+      <link rel="icon" type="image/x-icon" href="/favicon.ico" />
       <link rel="manifest" href="/site.webmanifest" />
       <meta
         name="viewport"

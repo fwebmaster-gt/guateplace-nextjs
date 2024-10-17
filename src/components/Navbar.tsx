@@ -21,7 +21,7 @@ const Navbar = () => {
   return (
     <>
       <nav
-        className={`z-40 fixed top-0 left-0 w-full bg-white flex items-center justify-between border-b border-gray-300 py-2 px-3`}
+        className={`z-30 fixed top-0 left-0 w-full bg-white flex items-center justify-between border-b border-gray-300 py-2 px-3`}
       >
         <div
           onClick={() => {

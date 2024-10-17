@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import { calcularSubtotal } from "@/constants/prices";
 import { productService } from "@/database/config";
 import { useCartStore } from "@/hooks/useCart";
@@ -33,6 +34,10 @@ const CartPage = ({ products }: { products: any[] }) => {
 
   return (
     <div>
+      <Seo
+        title="Carrito de compras | Guateplace"
+        description="Revisa los productos que has agregado a tu carrito de compras"
+      />
       <Navbar />
       <div
         className="relative z-10"

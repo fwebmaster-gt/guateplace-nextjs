@@ -1,3 +1,11 @@
+export type PedidoStatus =
+  | "pendiente" // se genera al crear la orden
+  | "verificando pago" // se genera al subir una evidencia de pago
+  | "confirmado" // se genera en  ADMIN al confirmar el pedido con el cliente
+  | "enviado" // se pone en enviado cuando se sube una guia (ADMIN)
+  | "cancelado admin"
+  | "cancelado cliente";
+
 export interface Pedido {
   fecha: number;
   cliente_id: string;
@@ -7,10 +15,10 @@ export interface Pedido {
   sub_total: number;
   total_envio: number;
   total: string;
-  estado: string;
+  estado: string | PedidoStatus;
   guia: string | null;
   tipo_pago: string;
-  pago_esta_listo: boolean;
+  imagen_pago?: string;
   id: string;
   recompensas: {
     lanacoins: number;
