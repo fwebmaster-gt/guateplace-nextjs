@@ -50,7 +50,7 @@ export default function Home({
           categoryDetails.descripcion ||
           `Encuentra productos de ${categoryDetails.nombre}`
         }
-        image={categoryDetails.imagen}
+        image={categoryDetails.logo}
       />
       <Navbar />
 
