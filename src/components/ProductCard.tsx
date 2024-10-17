@@ -82,7 +82,7 @@ const ProductCard = ({ p }: any) => {
 
       <div className="p-3 bg-white overflow-hidden flex flex-col justify-between">
         <Link className="mb-3" href={`/productos/${p.id}`}>
-          <p className="h-10 capitalize text-xs lg:text-base text-gray-800 font-bold text-elipsis-2">
+          <p className="h-10 lg:h-16 capitalize text-xs lg:text-base text-gray-800 font-bold text-elipsis-2">
             {p.nombre}
           </p>
 
