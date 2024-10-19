@@ -145,7 +145,7 @@ const ProductoDetails = ({
                 />
                 Favoritos
               </button>
-              {(productDetails.out_stock === true || +productDetails.cantidad === 0) ? (
+              {(productDetails.out_stock === true || +productDetails.cantidad <= 0) ? (
                 <button className="bg-gray-800 font-bold text-white p-2 px-4 rounded-lg text-xs flex gap-4 items-center justify-center">
                   Agotado <BsCartX className="text-lg" />
                 </button>

@@ -195,7 +195,7 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
       sub_total: calcularTotalPedido().toFixed(2),
       total_envio: TARIFA_ENVIO.toFixed(2),
       total: (calcularTotalPedido() + TARIFA_ENVIO).toFixed(2),
-      estado:  paymentMethod === "cod" ? "pendiente" : "pago pendiente",
+      estado: paymentMethod === "cod" ? "pendiente" : "pago pendiente",
       guia: null,
       tipo_pago: paymentMethod,
       pagos: [],
@@ -218,6 +218,17 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
         },
         true
       );
+
+      populatedProduct.map(async (pp) => {
+        const currentQty =
+          products.find((pc) => pc.id === pp.producto_id)?.cantidad || 0;
+
+        return await productService.transaction(
+          pp.producto_id,
+          "cantidad",
+          +currentQty - pp.cantidad
+        );
+      });
 
       setUser({
         ...user,
