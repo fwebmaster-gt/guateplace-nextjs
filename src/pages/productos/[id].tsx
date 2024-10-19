@@ -46,7 +46,7 @@ const ProductoDetails = ({
   if (!productDetails) return <p>Producto no encontrado</p>;
 
   return (
-    <div key={productDetails.id}>
+    <div key={`${productDetails.id}-page`}>
       <Seo
         title={productDetails.nombre}
         description={productDetails.detalles}
@@ -131,14 +131,20 @@ const ProductoDetails = ({
               }
             </div>
 
-            <div
-              className="text-gray-700 mb-12 mt-5 leading-8"
-              dangerouslySetInnerHTML={{
-                __html: productDetails.detalles || "No Data",
-              }}
-            />
-
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4 mt-6">
+            <button
+                onClick={() => addOrRemoveWishList(productDetails.id)}
+                className="bg-gray-200 flex gap-2 items-center  text-gray-800 px-6 py-2 rounded-md"
+              >
+                <BsHeartFill
+                  className={`text-xl ${
+                    user?.favoritos.includes(productDetails.id)
+                      ? "text-red-600"
+                      : "text-primary/70"
+                  }`}
+                />
+                Favoritos
+              </button>
               {(productDetails.out_stock === true || +productDetails.cantidad === 0) ? (
                 <button className="bg-gray-800 font-bold text-white p-2 px-4 rounded-lg text-xs flex gap-4 items-center justify-center">
                   Agotado <BsCartX className="text-lg" />
@@ -199,20 +205,17 @@ const ProductoDetails = ({
                   )}
                 </>
               )}
-              <button
-                onClick={() => addOrRemoveWishList(productDetails.id)}
-                className="bg-gray-200 flex gap-2 items-center  text-gray-800 px-6 py-2 rounded-md"
-              >
-                <BsHeartFill
-                  className={`text-xl ${
-                    user?.favoritos.includes(productDetails.id)
-                      ? "text-red-600"
-                      : "text-primary/70"
-                  }`}
-                />
-                Favoritos
-              </button>
+         
             </div>
+
+            <div
+              className="text-gray-700 mb-5 mt-5 leading-8"
+              dangerouslySetInnerHTML={{
+                __html: productDetails.detalles || "No Data",
+              }}
+            />
+
+           
           </div>
         </div>
 

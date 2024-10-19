@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 
 export const defaultSeo = {
   company: "Guateplace",
-  title: "Guateplace - Tu Tienda en Línea",
+  title: "Tu Tienda en Línea",
   description:
     "Descubre la mejor experiencia de compra en línea en Guatemala con productos de calidad y ofertas exclusivas.",
   keywords:
@@ -22,7 +22,7 @@ const Seo = ({ title, description, keywords, image }: Props) => {
 
   const metUrl = `https://guateplace.com${router.asPath}`;
 
-  const ogImage = image || "/guateplace.png";
+  const ogImage = image || "https://guateplace.com/guateplace.png";
 
   return (
     <Head>

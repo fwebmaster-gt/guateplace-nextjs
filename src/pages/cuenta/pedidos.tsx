@@ -4,19 +4,17 @@
 import { MySpinner } from "@/components/LoadingPage";
 import LoginToContinue from "@/components/LoginToContinue";
 import Navbar from "@/components/Navbar";
-import { pedidosService, productService } from "@/database/config";
+import Seo from "@/components/Seo";
+import { pedidosService } from "@/database/config";
 import { useAuthStore } from "@/hooks/useAuth";
 import { Pedido } from "@/types/pedido";
 import { useQuery } from "firebase-react-tools";
 import { where } from "firebase-react-tools/dist/sdk/firestore";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { estadoColors } from "../pedido/[id]";
 
-export const estadoColors: any = {
-  pendiente: "bg-orange-300 text-white border-orange-500",
-};
-
-const PedidoLista = ({ products }: { products: any[] }) => {
+const PedidoLista = () => {
   const router = useRouter();
 
   const [data, setData] = useState<Pedido[]>([]);
@@ -37,6 +35,7 @@ const PedidoLista = ({ products }: { products: any[] }) => {
 
   return (
     <div>
+      <Seo title="Mis Pedidos" description="Rastrea todos tus pedidos" />
       <Navbar />
 
       <div className="p-5">
@@ -44,10 +43,8 @@ const PedidoLista = ({ products }: { products: any[] }) => {
 
         {isLoading && <MySpinner />}
         <div className="flex flex-col gap-5">
-          {data.map((pedido) => {
-            const firstProduct = products.find(
-              (p) => p.id === pedido.productos_pedidos[0].producto_id
-            );
+          {sortByDate(data).map((pedido) => {
+            const firstProduct = pedido.productos_pedidos[0];
 
             return (
               <div
@@ -59,8 +56,11 @@ const PedidoLista = ({ products }: { products: any[] }) => {
                   className="object-cover border rounded-lg"
                   width={80}
                   height={80}
-                  src={firstProduct ? firstProduct.imagenes[0] : ""}
-                  alt=""
+                  src={
+                    firstProduct.imagen ||
+                    "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg"
+                  }
+                  alt={firstProduct.nombre || ""}
                 />
                 <div>
                   <p>{formatDate(pedido.fecha)}</p>
@@ -72,13 +72,15 @@ const PedidoLista = ({ products }: { products: any[] }) => {
                     Productos -{" "}
                     <span className="font-bold">Q{pedido.total}</span>
                   </p>
-                  <p
-                    className={`${
-                      estadoColors[pedido.estado]
-                    } p-1 text-center rounded-lg font-bold mt-2 capitalize`}
-                  >
+                  <div>
+                    <p
+                      className={`${
+                        estadoColors[pedido.estado]
+                      } text-center rounded-lg mt-2 capitalize`}
+                    >
                     {pedido.estado}
-                  </p>
+                    </p>
+                  </div>
                 </div>
               </div>
             );
@@ -89,16 +91,6 @@ const PedidoLista = ({ products }: { products: any[] }) => {
   );
 };
 
-export async function getServerSideProps() {
-  const products = await productService.find();
-
-  return {
-    props: {
-      products: products.data || [],
-    },
-  };
-}
-
 function formatDate(timestamp: string | number | Date) {
   const date = new Date(timestamp);
   // Configuramos el formato: día, mes en palabras y año
@@ -107,6 +99,18 @@ function formatDate(timestamp: string | number | Date) {
     day: "numeric",
     month: "long",
     year: "numeric",
+  });
+}
+
+function sortByDate(items: Pedido[]): Pedido[] {
+  return items.sort((a, b) => {
+    const now = Date.now();
+
+    // Calculate the difference between now and each date, then sort accordingly
+    const diffA = Math.abs(now - new Date(a.fecha).getTime());
+    const diffB = Math.abs(now - new Date(b.fecha).getTime());
+
+    return diffA - diffB;
   });
 }
 

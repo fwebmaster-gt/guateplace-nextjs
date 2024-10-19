@@ -32,7 +32,7 @@ export default function Home({
 }) {
   const router = useRouter();
 
-  const categoryId = router.query.id;
+  const categoryId = router.query.id as string;
 
   const [search, setSearch] = useState<string>("");
 
@@ -43,7 +43,7 @@ export default function Home({
   );
 
   return (
-    <div className="container mx-auto">
+    <div key={categoryId || "3312"} className="container mx-auto">
       <Seo
         title={categoryDetails.nombre}
         description={
@@ -86,6 +86,12 @@ export default function Home({
                 </button>
               </div>
             </div>
+            <Link
+            className="text-primary underline flex items-center gap-2 mb-5 mt-5 lg:hidden"
+            href={"/"}
+          >
+            <BsArrowLeft /> Todos los productos
+          </Link>
             <div className="flex gap-4 overflow-x-scroll py-5 lg:grid lg:grid-cols-4">
               {categoryDetails && (
                 <div>
@@ -134,7 +140,7 @@ export default function Home({
 
         <div className="lg:col-span-8">
           <Link
-            className="text-primary underline flex items-center gap-2 mb-5 mt-5"
+            className="text-primary underline lg:flex items-center gap-2 mb-5 mt-5 hidden"
             href={"/"}
           >
             <BsArrowLeft /> Todos los productos

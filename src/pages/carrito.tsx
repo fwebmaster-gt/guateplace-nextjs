@@ -63,7 +63,7 @@ const CartPage = ({ products }: { products: any[] }) => {
       >
         {toRemove && (
           <div className="flex items-center gap-4 justify-center mt-5">
-            <img className="rounded-lg object-cover"
+            <img className="rounded-lg object-cover "
               width={75}
               height={75}
               src={toRemove?.imagenes[0]}

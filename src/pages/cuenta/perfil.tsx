@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { FaMedal } from "react-icons/fa";
 import { calculateUserLevel } from "../pedido";
 import { FaArrowTrendUp } from "react-icons/fa6";
+import Seo from "@/components/Seo";
 
 const MyAccount = () => {
   const { user } = useAuthStore();
@@ -18,6 +19,7 @@ const MyAccount = () => {
   return (
     <div>
       <Navbar />
+      <Seo title="Mi Perfil" description="Detalles de tu cuenta como usuario" />
 
       <div className="px-8 mt-4">
         <h3 className=" font-bold text-2xl mx-5 mb-5">Perfil</h3>

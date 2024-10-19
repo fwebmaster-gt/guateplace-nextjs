@@ -17,7 +17,7 @@ import {
 import { useAppStore } from "@/hooks/useAppStore";
 import { Direccion, Nit, useAuthStore } from "@/hooks/useAuth";
 import { useCartStore } from "@/hooks/useCart";
-import { Pedido } from "@/types/pedido";
+import { Pedido, ProductosPedido } from "@/types/pedido";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -177,7 +177,9 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
           info.precio_especial,
           pCart.qty
         ),
-      };
+        imagen: info.imagenes[0],
+        nombre: info.nombre,
+      } as ProductosPedido;
     });
 
     const pedidoFinal = {
@@ -193,10 +195,10 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
       sub_total: calcularTotalPedido().toFixed(2),
       total_envio: TARIFA_ENVIO.toFixed(2),
       total: (calcularTotalPedido() + TARIFA_ENVIO).toFixed(2),
-      estado: "pendiente",
+      estado:  paymentMethod === "cod" ? "pendiente" : "pago pendiente",
       guia: null,
       tipo_pago: paymentMethod,
-      pago_esta_listo: false,
+      pagos: [],
     };
 
     const pedidoCreado = await pedidosService.add(pedidoFinal);

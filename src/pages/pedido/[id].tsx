@@ -1,30 +1,46 @@
+/* eslint-disable prefer-const */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { MySpinner } from "@/components/LoadingPage";
+import LoadingPage, { MySpinner } from "@/components/LoadingPage";
 import LoginToContinue from "@/components/LoginToContinue";
 import Modal from "@/components/Modal";
 import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
-import { pedidosService, productService } from "@/database/config";
-import { Producto, useAuthStore } from "@/hooks/useAuth";
-import { Pedido } from "@/types/pedido";
-import { useQuery } from "firebase-react-tools";
+import { app, pedidosService } from "@/database/config";
+import { useAuthStore } from "@/hooks/useAuth";
+import { Pago, Pedido } from "@/types/pedido";
+import { useQuery, useStorage } from "firebase-react-tools";
 import { where } from "firebase-react-tools/dist/sdk/firestore";
+import { nanoid } from "nanoid";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { BsArrowLeft } from "react-icons/bs";
 import { FaUpload } from "react-icons/fa";
 
-export const estadoColors: any = {
-  pendiente: "bg-orange-300 text-white border-orange-500",
+export const paymentStatus: any = {
+  verificando: "bg-blue-50 text-blue-600 ring-blue-600/10",
+  "anulado por usuario": "bg-orange-50 text-orange-600 ring-orange-600/10",
+  rechazado: "bg-red-50 text-red-600 ring-red-600/10",
+  aceptado: "bg-green-50 text-green-600 ring-green-600/10",
 };
 
-const PedidoInfo = ({ products }: { products: Producto[] }) => {
+export const estadoColors: any = {
+  pendiente: "bg-orange-50 text-orange-600 ring-orange-600/10",
+  confirmado: "bg-indigo-50 text-indigo-500 border-indigo-500 border",
+  "verificando pago": "bg-blue-50 text-blue-600 ring-blue-600/10",
+  enviado: "bg-green-50 text-green-600 ring-green-600/10",
+  "pago pendiente": "bg-orange-50 text-orange-600 ring-orange-600/10"
+};
+
+const PedidoInfo = () => {
   const [data, setData] = useState<Pedido[]>([]);
 
   const [toUpload, setToUpload] = useState<null | File>(null);
+
+  const { uploadFile } = useStorage(app);
 
   const { user } = useAuthStore();
 
@@ -32,9 +48,13 @@ const PedidoInfo = ({ products }: { products: Producto[] }) => {
 
   const pedidoId = router.query.id as string;
 
+  let pedido = data.find((p) => p.id === pedidoId);
+
   const { isLoading, refetch } = useQuery(pedidosService, setData, {
     queryOptions: where("cliente_id", "==", user?.id),
   });
+
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -44,21 +64,61 @@ const PedidoInfo = ({ products }: { products: Producto[] }) => {
 
   if (!user) return <LoginToContinue />;
 
-  const pedido = data.find((p) => p.id === pedidoId);
+  if (!pedido) return <>Error en pedido</>;
 
-  if (!pedido) return <></>;
+  if (uploading) return <LoadingPage customText="Subiendo comprobante" />;
 
   return (
     <div>
       <Seo title={`Pedido #${pedidoId}`} />
+
       {toUpload && (
         <Modal
           title="Subiendo Evidencia De Pago"
           close={() => setToUpload(null)}
           confirmButton={{
             text: "Subir imagen",
-            action: () => {
-              console.log("subiendo...");
+            action: async () => {
+              setUploading(true);
+
+              try {
+                const res = await uploadFile(
+                  `pedidos/${pedidoId}/${nanoid(5)}.png`,
+                  toUpload
+                );
+
+                const currentPays = pedido.pagos ? pedido.pagos : [];
+
+                if (!res.error && res.file) {
+                  const newPayment: Pago = {
+                    id: "pay-" + nanoid(5),
+                    fecha: Date.now(),
+                    estado: "verificando",
+                    imagen: res.file?.url,
+                    nota_rechazo: "",
+                  };
+
+                  await pedidosService.update(
+                    pedidoId,
+                    {
+                      pagos: [...currentPays, newPayment],
+                    },
+                    true
+                  );
+
+                  pedido.pagos = [...currentPays, newPayment];
+
+                  toast.success("Comprobante subido");
+                } else {
+                  toast.error("Ops... No se subio la imagen");
+                }
+                setUploading(false);
+
+                setToUpload(null);
+              } catch {
+                setUploading(false);
+                toast.error("Ops... No se subio la imagen");
+              }
             },
           }}
         >
@@ -79,14 +139,13 @@ const PedidoInfo = ({ products }: { products: Producto[] }) => {
           className="text-primary underline flex items-center gap-2"
           href={"/cuenta/pedidos"}
         >
-          <BsArrowLeft /> Pedidos
+          <BsArrowLeft /> Mis Pedidos
         </Link>
 
-        <h2 className="text-xl mt-3 font-bold mb-5">Resumen De Pedido</h2>
-
-        {isLoading && <MySpinner />}
-
-        <div className=" border p-4 rounded-lg">
+        <div className="border p-3 rounded-lg mt-5 bg-white shadow-sm">
+          <h2 className="text-2xl font-bold mb-6">
+            Pedido <span className="text-gray-700 text-lg">#{pedido.id}</span>
+          </h2>
           <div>
             <p className="text-xl text-gray-700">{formatDate(pedido.fecha)}</p>
             <p></p>
@@ -95,47 +154,62 @@ const PedidoInfo = ({ products }: { products: Producto[] }) => {
               <div className="flex justify-between items-center">
                 <p className="whitespace-nowrap">
                   {" "}
-                  {pedido.productos_pedidos.length} productos
+                  {pedido.productos_pedidos.length}{" "}
+                  {pedido.productos_pedidos.length === 1
+                    ? "producto"
+                    : "productos"}
                 </p>
 
                 <div className="min-w-[30%] overflow-hidden whitespace-nowrap">
-                  ................................
+                  ................................................................
                 </div>
                 <p>Q{pedido.sub_total}</p>
               </div>
 
-              <div className="flex justify-between items-center">
-                <p className="whitespace-nowrap">Total Envio</p>
+              <div className="flex justify-between items-center mt-1">
+                <p className="whitespace-nowrap">Envio</p>
 
                 <div className="min-w-[30%] overflow-hidden whitespace-nowrap">
-                  ................................
+                  ................................................................
                 </div>
                 <p>Q{pedido.total_envio}</p>
               </div>
 
-              <div className="font-bold flex justify-between items-center">
+              <div className="font-bold flex justify-between items-center mt-1">
                 <p className="whitespace-nowrap">Total a pagar</p>
 
                 <div className="min-w-[30%] overflow-hidden whitespace-nowrap">
-                  ................................
+                  ................................................................
                 </div>
                 <p>Q{pedido.total}</p>
               </div>
             </div>
-            <p
-              className={`${
-                estadoColors[pedido.estado]
-              } p-1 text-center rounded-lg font-bold mt-2 capitalize`}
-            >
-              {pedido.estado}
-            </p>
           </div>
+          <p
+            className={`${
+              estadoColors[pedido.estado]
+            } p-1 text-center rounded-lg mt-2 capitalize`}
+          >
+            {pedido.estado}
+          </p>
+
+
+          {
+            pedido.estado === "pendiente" &&  <p className="text-center text-gray-700 mt-5">Gracias por realizar tu pedido. Te contactaremos pronto para confirmarlo.</p>
+          }
+
+          {
+            pedido.estado === "confirmado" &&  <p className="text-center text-gray-700 mt-5">Gracias por confirmar tu pedido. Estamos preparando todo para su envío.</p>
+          }
+
+         
         </div>
 
-        <h2 className="text-xl mt-3 font-bold mb-5">Informacion de pago</h2>
-
-        <div className=" border p-4 rounded-lg mt-3">
-          <p className="bg-gray-100 uppercase items-center justify-center flex p-2 rounded-lg font-bold text-center text-gray-800">
+        <div className="border rounded-lg mt-5">
+          <h2 className="text-xl font-bold mb-3 mx-4 mt-4">
+            Informacion de pagos
+          </h2>
+          <p className="bg-blue-100 mx-4 my-4 uppercase items-center justify-center flex p-1 rounded-lg text-primary text-center border border-primary">
             {pedido.tipo_pago === "cod"
               ? "Pago contra entrega"
               : "Deposito/Transferencia"}
@@ -147,60 +221,123 @@ const PedidoInfo = ({ products }: { products: Producto[] }) => {
               "Genial! tienes que realizar tu pago hasta recibir tu pedido."
             ) : (
               <>
-                <p className="mb-4">
-                  Gracias por tu compra. Por favor, realiza el pago y luego sube
-                  una imagen o captura del comprobante de depósito o
-                  transferencia.
-                </p>
+                {pedido.pagos && pedido.pagos.length >= 1 ? (
+                  <div className="p-4">
+                    {pedido.pagos.map((pago) => (
+                      <div
+                        className="relative flex gap-4 border-b border-gray-500 py-5"
+                        key={pago.id}
+                      >
+                        <div className="w-20 h-20 overflow-hidden rounded-lg flex items-center justify-center bg-gray-300">
+                          <img
+                            className="object-cover"
+                            src={pago.imagen}
+                            alt="imagen-pago"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-bold text-lg">Pago #{pago.id}</p>
+                          <p>{formatDate(pago.fecha)}</p>
+                          <p
+                            className={`mt-2 capitalize inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                              paymentStatus[pago.estado]
+                            }`}
+                          >
+                            {pago.estado}
+                          </p>
 
-                <div className="relative">
-                  <button className="text-base capitalize font-bold bg-primary text-white p-3 rounded-lg w-full flex items-center justify-center gap-5 mb-5 mt-8">
-                    Subir imagen del pago <FaUpload />
-                  </button>
-                  <input
-                    className="bg-red-200 absolute top-0 left-0 w-full h-full opacity-0"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      if (e.target.files?.length) {
-                        setToUpload(e.target.files[0]);
-                      }
-                    }}
-                  />
-                </div>
+                          {pago.estado === "rechazado" && (
+                            <p className="mt-2 w-[80%] mx-auto inline-block">
+                              <span className="font-bold">Motivo:</span>{" "}
+                              {pago.nota_rechazo}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
 
-                <div className="mt-12">
-                  <img
-                    className="rounded-lg"
-                    src="/cuenta-ahorro.png"
-                    alt="lo"
-                  />
-                </div>
+                    {
+                      pedido.pagos.find(p => p.estado === "aceptado") ? <></> :      <div className="relative">
+                      <button className="py-10 text-base capitalize font-bold border-2 text-primary bg-blue-50 border-dashed border-primary p-3 rounded-lg w-full flex flex-col items-center gap-5 mb-5 mt-8">
+                        <FaUpload className="text-4xl" /> Subir otro pago
+                      </button>
+                      <p>Si ya has subido tu pago, no te precupes, lo vamos a verificar pronto</p>
+                      <input
+                        className="bg-red-200 absolute top-0 left-0 w-full h-full opacity-0"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          if (e.target.files?.length) {
+                            setToUpload(e.target.files[0]);
+                          }
+                        }}
+                      />
+                    </div>
+                    }
+               
+                  </div>
+                ) : (
+                  <>
+                    <div className="relative px-4">
+                      <p className="mb-4">
+                        Gracias por tu compra. Por favor, realiza el pago y
+                        luego sube una imagen o captura del comprobante de
+                        depósito o transferencia.
+                      </p>
+                      <button className="py-10 text-base capitalize font-bold border-2 text-primary bg-blue-50 border-dashed border-primary p-3 rounded-lg w-full flex flex-col items-center gap-5 mb-5 mt-8">
+                        <FaUpload className="text-4xl" /> Subir comprobante de
+                        pago
+                      </button>
+                      <input
+                        className="bg-red-200 absolute top-0 left-0 w-full h-full opacity-0"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          if (e.target.files?.length) {
+                            setToUpload(e.target.files[0]);
+                          }
+                        }}
+                      />
+                    </div>
+
+                    <div className="mt-5">
+                      <img
+                        className="rounded-lg min-h-[200px] mb-3"
+                        src="/deposito-banrural.png"
+                        alt="deposito"
+                      />
+
+                      <img
+                        className="rounded-lg min-h-[200px]"
+                        src="/banrural-cuik.png"
+                        alt="deposito"
+                      />
+                    </div>
+                  </>
+                )}
               </>
             )}
           </div>
         </div>
 
-        <h2 className="text-xl mt-3 font-bold mb-5">Productos pedidos</h2>
+        {isLoading && <MySpinner />}
 
-        <div>
+        <div className="mt-5 shadow border rounded-lg p-4">
+          <h2 className="text-xl mt-1 font-bold mb-5">Productos pedidos</h2>
           <ul role="list" className={`divide-y divide-gray-200`}>
-            {pedido.productos_pedidos.map((productInCart) => {
-              const details = products.find(
-                (p) => p.id === productInCart.producto_id
-              );
-
-              if (!details)
-                return (
-                  <p key={productInCart.producto_id}>Producto no válido</p>
-                );
-
+            {pedido.productos_pedidos.map((productoPedido) => {
               return (
-                <li key={productInCart.producto_id} className="flex py-3">
+                <li
+                  key={productoPedido.producto_id + "productdetails"}
+                  className="flex py-3"
+                >
                   <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                     <img
-                      src={details.imagenes[0]}
-                      alt={details.nombre} // Asumimos que 'nombre' es una propiedad
+                      src={
+                        productoPedido.imagen ||
+                        "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg"
+                      }
+                      alt={productoPedido.nombre || "noimage"} // Asumimos que 'nombre' es una propiedad
                       className="h-full w-full object-cover object-center"
                     />
                   </div>
@@ -209,21 +346,13 @@ const PedidoInfo = ({ products }: { products: Producto[] }) => {
                       <div className="flex justify-between text-base font-medium text-gray-900">
                         <div>
                           <h3 className="text-sm font-bold">
-                            <a href="#">{details.nombre}</a>
+                            {productoPedido.nombre || "Eliminado"}
                           </h3>
 
                           <div className="flex gap-2 text-gray-500 text-xs">
-                            <p>
-                              {
-                                pedido.productos_pedidos.find(
-                                  (productInCart) =>
-                                    productInCart.producto_id === details.id
-                                )?.cantidad
-                              }{" "}
-                              X
-                            </p>
-                            <p>Q{productInCart.precio_final_unitario}</p>={" "}
-                            <p>Q{productInCart.subtotal}</p>
+                            <p>{productoPedido.cantidad} X</p>
+                            <p>Q{productoPedido.precio_final_unitario}</p>={" "}
+                            <p>Q{productoPedido.subtotal}</p>
                           </div>
                         </div>
                       </div>
@@ -235,9 +364,8 @@ const PedidoInfo = ({ products }: { products: Producto[] }) => {
           </ul>
         </div>
 
-        <h2 className="text-xl mt-3 font-bold mb-5">Info De Envio</h2>
-
-        <div className=" border p-4 rounded-lg">
+        <div className="shadow mt-5 border p-4 rounded-lg">
+          <h2 className="text-xl mt-3 font-bold mb-5">Info De Envio</h2>
           <div>
             <p className="mb-3">
               <b> Nombre de receptor</b>: {pedido.info_envio.nombre_receptor}
@@ -267,17 +395,7 @@ const PedidoInfo = ({ products }: { products: Producto[] }) => {
   );
 };
 
-export async function getServerSideProps() {
-  const products = await productService.find();
-
-  return {
-    props: {
-      products: products.data || [],
-    },
-  };
-}
-
-function formatDate(timestamp: string | number | Date) {
+export function formatDate(timestamp: string | number | Date) {
   const date = new Date(timestamp);
   // Configuramos el formato: día, mes en palabras y año
 
