@@ -11,6 +11,7 @@ import NextNProgress from "nextjs-progressbar";
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import "@/styles/globals.css";
+import Head from "next/head";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { user, loading } = useAuth(app);
@@ -57,6 +58,9 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
+    <Head>
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    </Head>
       <Toaster />
 
       {(loadingProfile === true || loading === true) && <LoadingPage />}

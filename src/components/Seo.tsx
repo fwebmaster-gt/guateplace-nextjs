@@ -22,8 +22,6 @@ const Seo = ({ title, description, keywords, image }: Props) => {
 
   const metUrl = `https://guateplace.com${router.asPath}`;
 
-  console.log(metUrl);
-
   const ogImage = image || "/guateplace.png";
 
   return (

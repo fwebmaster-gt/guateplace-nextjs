@@ -23,6 +23,10 @@ const ProductCard = ({ p }: any) => {
 
   const favoritos = user?.favoritos || [];
 
+  const totalAdded = productsInCart.find(
+    (productInCart) => productInCart.productId === p.id
+  )?.qty || 0;
+
   return (
     <div
       className="relative border shadow-sm border-gray-300 rounded-lg overflow-hidden"
@@ -82,7 +86,7 @@ const ProductCard = ({ p }: any) => {
 
       <div className="p-3 bg-white overflow-hidden flex flex-col justify-between">
         <Link className="mb-3" href={`/productos/${p.id}`}>
-          <p className="h-10 lg:h-16 capitalize text-xs lg:text-base text-gray-800 font-bold text-elipsis-2">
+          <p className="h-9 lg:h-16 capitalize text-xs lg:text-base text-gray-800 font-bold text-elipsis-2">
             {p.nombre}
           </p>
 
@@ -105,7 +109,17 @@ const ProductCard = ({ p }: any) => {
           </div>
         </Link>
 
-        {p.out_stock === true ? (
+        {
+               (p.cantidad <= 0 || p.out_stock) ? <span>
+         
+             </span> : <span className="text-center mb-2 rounded-md bg-blue-50 px-2 py-1 text-[10px] font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+             
+                <span className="font-bold">{p.cantidad}</span>{" "}
+                {+p.cantidad === 1 ? "Unidad" : "Unidades"}  {" "} {+p.cantidad === 1 ? "Disponible" : "Disponibles"}
+              </span> 
+              }
+
+        {(p.out_stock === true || +p.cantidad === 0) ? (
           <button className="bg-gray-800 font-bold text-white p-2 px-4 rounded-lg text-xs flex gap-4 items-center justify-center">
             Agotado <BsCartX className="text-lg" />
           </button>
@@ -118,19 +132,19 @@ const ProductCard = ({ p }: any) => {
                 {productsInCart.find(
                   (productInCart) => productInCart.productId === p.id
                 )?.qty === 1 ? (
-                  <div
+                  <button
                     onClick={() => removeProduct(p.id)}
                     className="flex items-center justify-center h-7 w-7 bg-red-500 rounded-lg text-white font-bold"
                   >
                     <MdDelete />
-                  </div>
+                  </button>
                 ) : (
-                  <div
+                  <button
                     onClick={() => decrementItem(p.id)}
                     className="flex items-center justify-center h-7 w-7 bg-primary rounded-lg text-white font-bold"
                   >
                     -
-                  </div>
+                  </button>
                 )}
                 <input
                   disabled={true}
@@ -142,12 +156,18 @@ const ProductCard = ({ p }: any) => {
                     )?.qty
                   }
                 />
-                <div
-                  onClick={() => incrementItem(p.id)}
-                  className="flex items-center justify-center h-7 w-7 bg-primary rounded-lg text-white font-bold"
+                <button disabled={totalAdded && totalAdded <= +p.cantidad - 1 ? false : true}
+                  onClick={() => {                   
+                    if(totalAdded){
+                      if(totalAdded <= +p.cantidad - 1){
+                        incrementItem(p.id)
+                      }
+                    }
+                  }}
+                  className="disabled:bg-gray-700 flex items-center justify-center h-7 w-7 bg-primary rounded-lg text-white font-bold"
                 >
                   +
-                </div>
+                </button>
               </div>
             ) : (
               <button

@@ -1,12 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import ModalDialog from "@/components/ModalDialog";
 import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
 import { calcularSubtotal } from "@/constants/prices";
 import { productService } from "@/database/config";
+import { Producto } from "@/hooks/useAuth";
 import { useCartStore } from "@/hooks/useCart";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { BsCartX } from "react-icons/bs";
 import { MdDelete } from "react-icons/md";
 
@@ -14,6 +17,8 @@ const CartPage = ({ products }: { products: any[] }) => {
   const router = useRouter();
   const { productsInCart, decrementItem, incrementItem, removeProduct } =
     useCartStore();
+
+  const [toRemove, setToRemove] = useState<Producto | null>(null);
 
   // Función para calcular el total del pedido
   const calcularTotalPedido = (): number => {
@@ -39,6 +44,35 @@ const CartPage = ({ products }: { products: any[] }) => {
         description="Revisa los productos que has agregado a tu carrito de compras"
       />
       <Navbar />
+
+      <ModalDialog
+        title="Estas apunto de eliminar este producto"
+        description="Si ya no deseas este producto puedes continuar"
+        onClickBtn={() => {
+          if (toRemove) {
+            removeProduct(toRemove.id);
+            setToRemove(null);
+          }
+        }}
+        open={toRemove ? true : false}
+        setOpen={(modalValue) => {
+          if (!modalValue) return setToRemove(null);
+        }}
+        textConfirm="Eliminar"
+        btnColor="bg-red-500"
+      >
+        {toRemove && (
+          <div className="flex items-center gap-4 justify-center mt-5">
+            <img className="rounded-lg object-cover"
+              width={75}
+              height={75}
+              src={toRemove?.imagenes[0]}
+              alt={toRemove?.nombre}
+            />
+            <p>{toRemove?.nombre}</p>
+          </div>
+        )}
+      </ModalDialog>
       <div
         className="relative z-10"
         aria-labelledby="slide-over-title"
@@ -61,8 +95,8 @@ const CartPage = ({ products }: { products: any[] }) => {
                       <div className="flow-root">
                         {productsInCart.length === 0 && (
                           <div>
-                            <img
-                              className="max-h-[200px] w-full object-cover"
+                            <img width={200} height={200}
+                              className="w-full object-cover"
                               src="/empty-cart.png"
                               alt="empty-cart"
                             />
@@ -86,6 +120,11 @@ const CartPage = ({ products }: { products: any[] }) => {
                               (p) => p.id === productInCart.productId
                             );
 
+                            const totalAdded = productsInCart.find(
+                              (productInCart) =>
+                                productInCart.productId === details.id
+                            )?.qty;
+
                             if (!details)
                               return (
                                 <p key={productInCart.productId}>
@@ -98,7 +137,14 @@ const CartPage = ({ products }: { products: any[] }) => {
                                 key={productInCart.productId}
                                 className="flex py-6"
                               >
-                                <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                                <div
+                                  onClick={() =>
+                                    router.push(
+                                      `/productos/${productInCart.productId}`
+                                    )
+                                  }
+                                  className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200"
+                                >
                                   <img
                                     src={details.imagenes[0]}
                                     alt={details.nombre} // Asumimos que 'nombre' es una propiedad
@@ -149,7 +195,8 @@ const CartPage = ({ products }: { products: any[] }) => {
                                   <div className="flex flex-1 items-end justify-between text-sm">
                                     <div className="text-gray-500">
                                       <p className="mb-2"> Cantidad </p>
-                                      {details.out_stock === true ? (
+                                      {details.out_stock === true ||
+                                      +details.cantidad === 0 ? (
                                         <button className="bg-gray-800 font-bold text-white p-2 px-4 rounded-lg text-xs flex gap-4 items-center justify-center">
                                           Agotado{" "}
                                           <BsCartX className="text-lg" />
@@ -167,44 +214,52 @@ const CartPage = ({ products }: { products: any[] }) => {
                                                   productInCart.productId ===
                                                   details.id
                                               )?.qty === 1 ? (
-                                                <div
-                                                  onClick={() =>
-                                                    removeProduct(details.id)
-                                                  }
+                                                <button
+                                                  onClick={() => {
+                                                    setToRemove(details);
+                                                  }}
                                                   className="flex items-center justify-center h-7 w-7 bg-red-500 rounded-full text-white font-bold"
                                                 >
                                                   <MdDelete />
-                                                </div>
+                                                </button>
                                               ) : (
-                                                <div
+                                                <button
                                                   onClick={() =>
                                                     decrementItem(details.id)
                                                   }
                                                   className="flex items-center justify-center h-7 w-7 bg-primary rounded-full text-white font-bold"
                                                 >
                                                   -
-                                                </div>
+                                                </button>
                                               )}
                                               <input
                                                 disabled={true}
                                                 className="w-[40px] py-2 text-center border outline-none rounded-lg"
                                                 type="number"
-                                                value={
-                                                  productsInCart.find(
-                                                    (productInCart) =>
-                                                      productInCart.productId ===
-                                                      details.id
-                                                  )?.qty
-                                                }
+                                                value={totalAdded}
                                               />
-                                              <div
-                                                onClick={() =>
-                                                  incrementItem(details.id)
+                                              <button
+                                                disabled={
+                                                  totalAdded &&
+                                                  totalAdded <=
+                                                    +details.cantidad - 1
+                                                    ? false
+                                                    : true
                                                 }
-                                                className="flex items-center justify-center h-6 w-6 bg-primary rounded-full text-white font-bold"
+                                                onClick={() => {
+                                                  if (totalAdded) {
+                                                    if (
+                                                      totalAdded <=
+                                                      +details.cantidad - 1
+                                                    ) {
+                                                      incrementItem(details.id);
+                                                    }
+                                                  }
+                                                }}
+                                                className="disabled:bg-gray-700 flex items-center justify-center h-6 w-6 bg-primary rounded-full text-white font-bold"
                                               >
                                                 +
-                                              </div>
+                                              </button>
                                             </div>
                                           ) : (
                                             <></>
@@ -215,7 +270,7 @@ const CartPage = ({ products }: { products: any[] }) => {
                                     <div className="flex">
                                       <button
                                         onClick={() =>
-                                          removeProduct(details.id)
+                                          setToRemove(details)
                                         }
                                         type="button"
                                         className="font-medium text-red-400 hover:text-red-500"
