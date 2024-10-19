@@ -1,4 +1,5 @@
 import { Pedido } from "@/types/pedido";
+import { StockTransaction } from "@/types/stock";
 import {
   AuthService,
   FirestoreService,
@@ -18,7 +19,9 @@ export const app = initFirebaseTools(firebaseConfig);
 
 export const auth = new AuthService(app);
 
+
 export const customerService = new FirestoreService(app, "clientes");
 export const productService = new FirestoreService(app, "productos");
 export const categoryService = new FirestoreService(app, "categorias");
 export const pedidosService = new FirestoreService<Pedido>(app, "pedidos");
+export const stockService = new FirestoreService<StockTransaction>(app, "stock_transaction");

@@ -13,11 +13,13 @@ import {
   customerService,
   pedidosService,
   productService,
+  stockService,
 } from "@/database/config";
 import { useAppStore } from "@/hooks/useAppStore";
 import { Direccion, Nit, useAuthStore } from "@/hooks/useAuth";
 import { useCartStore } from "@/hooks/useCart";
 import { Pedido, ProductosPedido } from "@/types/pedido";
+import { StockTransaction } from "@/types/stock";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -210,6 +212,7 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
 
       setOrderSeccess(pedidoCreado.data);
 
+      // se asignan los lanacoins
       customerService.update(
         user.id,
         {
@@ -219,15 +222,25 @@ const CheckoutPage = ({ products }: { products: any[] }) => {
         true
       );
 
+      // se hace la reduccion de stock por producto
       populatedProduct.map(async (pp) => {
         const currentQty =
           products.find((pc) => pc.id === pp.producto_id)?.cantidad || 0;
 
-        return await productService.transaction(
-          pp.producto_id,
-          "cantidad",
-          +currentQty - pp.cantidad
-        );
+        const newStockQty = Number(currentQty) - pp.cantidad;
+
+        await productService.update(pp.producto_id, {
+          cantidad: newStockQty,
+        });
+
+        return await stockService.add({
+          cantidad: pp.cantidad,
+          productId: pp.producto_id,
+          pedidoId: pedidoCreado.data?.id || "",
+          type: "egreso",
+          fecha: Date.now(),
+          new_stock_value: newStockQty
+        } as StockTransaction);
       });
 
       setUser({
