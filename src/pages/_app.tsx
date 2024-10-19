@@ -54,6 +54,16 @@ export default function App({ Component, pageProps }: AppProps) {
     }
   }, [user, loading]);
 
+  useEffect(() => {
+    const handlePopState = () => {
+      setLoginToContinue({ block: false, value: false });
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
   if (user && !profile && !loadingProfile && !loading) return <CreateProfile />;
 
   return (

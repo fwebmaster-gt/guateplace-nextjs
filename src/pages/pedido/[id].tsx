@@ -64,7 +64,7 @@ const PedidoInfo = () => {
 
   if (!user) return <LoginToContinue />;
 
-  if (!pedido) return <>Error en pedido</>;
+  if (!pedido) return <></>;
 
   if (uploading) return <LoadingPage customText="Subiendo comprobante" />;
 
