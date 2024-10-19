@@ -101,12 +101,15 @@ const PedidoInfo = () => {
                   await pedidosService.update(
                     pedidoId,
                     {
+                      estado: "verificando pago",
                       pagos: [...currentPays, newPayment],
                     },
                     true
                   );
 
                   pedido.pagos = [...currentPays, newPayment];
+
+                  pedido.estado = "verificando pago";
 
                   toast.success("Comprobante subido");
                 } else {
